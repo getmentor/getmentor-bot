@@ -111,3 +111,6 @@ bin
 obj
 appsettings.json
 local.settings.json
+
+# Visual Studio Code
+.vscode
