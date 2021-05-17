@@ -2,6 +2,7 @@ import { Mentor, MentorStatus } from "../models/Mentor";
 
 import Airtable from "airtable";
 import Base from "airtable/lib/base";
+import { MentorClientRequest } from "../models/MentorClientRequest";
 
 //var Airtable = require('airtable');
 
@@ -42,5 +43,19 @@ export class AirtableBase {
         });
 
         mentor.status = newStatus;
+    }
+
+    public async getMentorRequests(mentor: Mentor) {
+        let requests = await this.base.table('Client Requests').select({
+                view: "Grid view",
+                filterByFormula: `AND({Mentor Id}='${mentor.airtable_id}',Status!='done',Status!='declined')`,
+                sort: [{field: "Last Modified Time", direction: "asc"}]
+        }).firstPage();
+
+        requests.forEach(r => {
+           mentor.requests.push(new MentorClientRequest(r));
+        });
+
+        return mentor;
     }
 }

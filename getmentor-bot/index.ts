@@ -6,6 +6,7 @@ import {MenuTemplate, MenuMiddleware, createBackMainMenuButtons} from "telegraf-
 import { Context as TgContext, Markup, Telegraf } from 'telegraf'
 import { getMentor } from "./commands/start";
 import { getStatusCaption, isSet, setStatus } from "./commands/status";
+import { backButtons } from "./bot/general";
 
 const { TELEGRAM_BOT_TOKEN, WEBHOOK_ADDRESS } = process.env;
 
@@ -16,13 +17,53 @@ bot.telegram.setWebhook(WEBHOOK_ADDRESS);
 
 const menu = new MenuTemplate<MentorContext>(getMentor);
 
+// Profile URL
 menu.url('Profile', (ctx) => {
     return ctx.mentor ? ctx.mentor.url : 'https://getmentor.dev';
 });
 
+// Status
 menu.toggle(getStatusCaption, 'status', {
 	set: setStatus,
 	isSet: isSet
+})
+
+// Requests
+const requestsMenu = new MenuTemplate<MentorContext>('Ваши текушие заявки')
+
+const singleRequestSubmenu = new MenuTemplate<MentorContext>(singleRequestText)
+function singleRequestText(ctx: MentorContext): string {
+	const id = ctx.match![1]!;
+    let request = ctx.mentor.requests.find(r => r.airtable_id === id);
+	return request ? request.name : 'unknown';
+}
+
+function requestButtonText(ctx: MentorContext, key: string): string {
+    let request = ctx.mentor.requests.find(r => r.airtable_id === key);
+	return request ? request.name : 'unknown';
+}
+
+singleRequestSubmenu.interact('test', 'randomButton', {
+	do: async ctx => {
+        const id = ctx.match![1]!;
+		await ctx.answerCbQuery('Just a callback query answer')
+		return true;
+	}
+});
+
+singleRequestSubmenu.manualRow(backButtons);
+
+requestsMenu.chooseIntoSubmenu('request', 
+    (ctx) => {
+        return ctx.mentor.requests.map((r) => r.airtable_id)
+    }, singleRequestSubmenu, {
+        buttonText: requestButtonText,
+	    columns: 1
+    });
+
+requestsMenu.manualRow(backButtons);
+menu.submenu('<h1>Заявки</h1>', 'requests', requestsMenu, {
+	hide: (ctx) => ctx.mentor.requests.length === 0
 })
 
 const menuMiddleware = new MenuMiddleware('/', menu)
@@ -43,6 +84,8 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
             : req.body.message.chat.id;
 
         const mentor = await airtable.getMentorByTelegramId(chat_id);
+        await airtable.getMentorRequests(mentor);
+
         bot.context.mentor = mentor;
         bot.context.airtable = airtable;
         await bot.handleUpdate(req.body);

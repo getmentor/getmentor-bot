@@ -25,7 +25,7 @@ menu.toggle(getStatusCaption, 'status', {
 	isSet: isSet
 })
 
-/*let mainMenuToggle = true
+let mainMenuToggle = true
 menu.toggle('toggle me', 'toggle me', {
 	set: (_, newState) => {
 		mainMenuToggle = newState
@@ -221,7 +221,6 @@ mediaMenu.select('type', ['animation', 'document', 'photo1', 'photo2', 'video', 
 mediaMenu.manualRow(createBackMainMenuButtons('назад','главное меню'))
 
 menu.submenu('Media Menu', 'media', mediaMenu)
-*/
 
 const menuMiddleware = new MenuMiddleware('/', menu)
 bot.command('start', ctx => menuMiddleware.replyToContext(ctx))

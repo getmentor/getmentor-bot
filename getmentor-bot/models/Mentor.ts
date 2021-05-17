@@ -1,3 +1,5 @@
+import { MentorClientRequest } from "./MentorClientRequest";
+
 export enum MentorStatus {
     pending,
     active,
@@ -43,6 +45,7 @@ export class Mentor {
     experience: MentorExperience;
     remarks: string;
     calendar: string;
+    requests: MentorClientRequest[];
 
     constructor(record: any) {
         this.airtable_id = record.id;
@@ -61,5 +64,6 @@ export class Mentor {
         this.experience = MentorExperience[record.fields.Experience as keyof typeof MentorExperience];
         this.remarks = record.fields.Remarks;
         this.calendar = record.fields.Calendly;
+        this.requests = [];
     };
 }
