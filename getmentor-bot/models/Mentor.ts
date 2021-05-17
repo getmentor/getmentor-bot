@@ -1,18 +1,18 @@
-enum MentorStatus {
+export enum MentorStatus {
     pending,
     active,
     inactive,
     declined
 }
 
-enum MentorExperience {
+export enum MentorExperience {
     junior = "0-2",
     middle = "2-5",
     senior = "5-10",
     rockstar = "10+"
 }
 
-enum MentorPrice {
+export enum MentorPrice {
     free = "Бесплатно",
     p1000 = "1000",
     p2000 = "2000",
@@ -54,12 +54,12 @@ export class Mentor {
         this.tg_secret = record.fields.TgSecret;
         this.tg_username = record.fields.Telegram;
         this.tg_chat_id = record.fields["Telegram Chat Id"];
-        this.price = record.fields.Price as MentorPrice;
-        this.status = record.fields.Status as MentorStatus;
+        this.price = MentorPrice[record.fields.Price as keyof typeof MentorPrice];
+        this.status = MentorStatus[record.fields.Status as keyof typeof MentorStatus];
         this.tags = record.fields.Tags;
         this.image = record.fields.Image;
-        this.experience = record.fields.Experience as MentorExperience;
+        this.experience = MentorExperience[record.fields.Experience as keyof typeof MentorExperience];
         this.remarks = record.fields.Remarks;
         this.calendar = record.fields.Calendly;
-    }
+    };
 }

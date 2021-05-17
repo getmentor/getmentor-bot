@@ -1,4 +1,4 @@
-import { Mentor } from "../models/Mentor";
+import { Mentor, MentorStatus } from "../models/Mentor";
 
 import Airtable from "airtable";
 import Base from "airtable/lib/base";
@@ -31,5 +31,16 @@ export class AirtableBase {
                 });
             });        
         });
+    }
+
+    public async setMentorStatus(mentor: Mentor, newStatus: MentorStatus) {
+        if (!mentor) return;
+        if (mentor.status === newStatus) return;
+
+        await this.base.table('Mentors').update(mentor.airtable_id, {
+            "Status": MentorStatus[newStatus]
+        });
+
+        mentor.status = newStatus;
     }
 }
