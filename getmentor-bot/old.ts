@@ -10,14 +10,14 @@ import { getStatusCaption, isSet, setStatus } from "./commands/status";
 const { TELEGRAM_BOT_TOKEN, WEBHOOK_ADDRESS } = process.env;
 
 const bot = new Telegraf<MentorContext>(TELEGRAM_BOT_TOKEN, {telegram: { webhookReply: true }});
-const airtable = new AirtableBase(process.env["AIRTABLE_API_KEY"], process.env['AIRTABLE_BASE_ID']);
+const airtable = new AirtableBase(process.env["AIRTABLE_API_KEY"], process.env['AIRTABLE_BASE_ID'], 1);
 
 bot.telegram.setWebhook(WEBHOOK_ADDRESS);
 
 const menu = new MenuTemplate<MentorContext>(getMentor);
 
 menu.url('Profile', (ctx) => {
-    return ctx.mentor ? ctx.mentor.url : 'https://getmentor.dev';
+    return ctx.airtable.mentor ? ctx.airtable.mentor.url : 'https://getmentor.dev';
 });
 
 menu.toggle(getStatusCaption, 'status', {
@@ -239,8 +239,8 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
             req.body.callback_query.message.chat.id
             : req.body.message.chat.id;
 
-        const mentor = await airtable.getMentorByTelegramId(chat_id);
-        bot.context.mentor = mentor;
+        await airtable.getMentorByTelegramId(chat_id);
+
         bot.context.airtable = airtable;
         await bot.handleUpdate(req.body);
     } finally {

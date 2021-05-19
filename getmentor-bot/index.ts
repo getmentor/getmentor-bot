@@ -6,12 +6,13 @@ import {MenuTemplate, MenuMiddleware, createBackMainMenuButtons} from "telegraf-
 import { Context as TgContext, Markup, Telegraf } from 'telegraf'
 import { getMentor } from "./commands/start";
 import { getStatusCaption, isSet, setStatus } from "./commands/status";
-import { backButtons } from "./bot/general";
+import { makeRequestsMenu } from "./commands/requests";
+import { makeTagsMenu } from "./commands/tags";
 
 const { TELEGRAM_BOT_TOKEN, WEBHOOK_ADDRESS } = process.env;
 
 const bot = new Telegraf<MentorContext>(TELEGRAM_BOT_TOKEN, {telegram: { webhookReply: true }});
-const airtable = new AirtableBase(process.env["AIRTABLE_API_KEY"], process.env['AIRTABLE_BASE_ID']);
+let airtable;
 
 bot.telegram.setWebhook(WEBHOOK_ADDRESS);
 
@@ -19,7 +20,7 @@ const menu = new MenuTemplate<MentorContext>(getMentor);
 
 // Profile URL
 menu.url('Profile', (ctx) => {
-    return ctx.mentor ? ctx.mentor.url : 'https://getmentor.dev';
+    return ctx.airtable.mentor ? ctx.airtable.mentor.url : 'https://getmentor.dev';
 });
 
 // Status
@@ -29,42 +30,12 @@ menu.toggle(getStatusCaption, 'status', {
 })
 
 // Requests
-const requestsMenu = new MenuTemplate<MentorContext>('Ваши текушие заявки')
+makeRequestsMenu(menu);
 
-const singleRequestSubmenu = new MenuTemplate<MentorContext>(singleRequestText)
-function singleRequestText(ctx: MentorContext): string {
-	const id = ctx.match![1]!;
-    let request = ctx.mentor.requests.find(r => r.airtable_id === id);
-	return request ? request.name : 'unknown';
-}
+makeTagsMenu(menu);
 
-function requestButtonText(ctx: MentorContext, key: string): string {
-    let request = ctx.mentor.requests.find(r => r.airtable_id === key);
-	return request ? request.name : 'unknown';
-}
-
-singleRequestSubmenu.interact('test', 'randomButton', {
-	do: async ctx => {
-        const id = ctx.match![1]!;
-		await ctx.answerCbQuery('Just a callback query answer')
-		return true;
-	}
-});
-
-singleRequestSubmenu.manualRow(backButtons);
-
-requestsMenu.chooseIntoSubmenu('request', 
-    (ctx) => {
-        return ctx.mentor.requests.map((r) => r.airtable_id)
-    }, singleRequestSubmenu, {
-        buttonText: requestButtonText,
-	    columns: 1
-    });
-
-requestsMenu.manualRow(backButtons);
-menu.submenu('<h1>Заявки</h1>', 'requests', requestsMenu, {
-	hide: (ctx) => ctx.mentor.requests.length === 0
-})
+// calendly
+menu.switchToCurrentChat('Calendly', 'calendly');
 
 const menuMiddleware = new MenuMiddleware('/', menu)
 bot.command('start', ctx => menuMiddleware.replyToContext(ctx))
@@ -81,12 +52,14 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
     try {
         const chat_id = req.body.callback_query ?
             req.body.callback_query.message.chat.id
-            : req.body.message.chat.id;
+            : req.body.inline_query ? 
+                req.body.inline_query.from.id
+                : req.body.message.chat.id;
 
-        const mentor = await airtable.getMentorByTelegramId(chat_id);
-        await airtable.getMentorRequests(mentor);
+        airtable = new AirtableBase(process.env["AIRTABLE_API_KEY"], process.env['AIRTABLE_BASE_ID'], chat_id);
+        await airtable.getMentorByTelegramId(chat_id);
+        // await airtable.getMentorRequests(mentor);
 
-        bot.context.mentor = mentor;
         bot.context.airtable = airtable;
         await bot.handleUpdate(req.body);
     } finally {
@@ -110,6 +83,10 @@ async function processMessage(ctx: TgContext, base: AirtableBase) {
 
 async function processCallback(ctx: TgContext, base: AirtableBase) {
     ctx.reply('callback ' + ctx.callbackQuery["data"]);
+}
+
+async function processInline(ctx: TgContext, base: AirtableBase) {
+    ctx.reply('inline ' + ctx.inlineQuery.query);
 }
 
 export default httpTrigger;

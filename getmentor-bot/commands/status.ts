@@ -2,7 +2,7 @@ import { MentorContext } from "../bot/MentorContext";
 import { MentorStatus } from "../models/Mentor";
 
 export function getStatusCaption(ctx: MentorContext): string {
-    switch (ctx.mentor.status) {
+    switch (ctx.airtable.mentor.status) {
         case MentorStatus.active:
             return 'Статус: активный';
         
@@ -21,11 +21,11 @@ export function getStatusCaption(ctx: MentorContext): string {
 }
 
 export async function setStatus(context: MentorContext, newState: boolean): Promise<boolean> {
-    await context.airtable.setMentorStatus(context.mentor, newState ? MentorStatus.active : MentorStatus.inactive);
+    await context.airtable.setMentorStatus(newState ? MentorStatus.active : MentorStatus.inactive);
     // Update the menu afterwards
     return true
 }
 
 export function isSet(context: MentorContext): boolean {
-    return context.mentor.status === MentorStatus.active
+    return context.airtable.mentor.status === MentorStatus.active
 }
