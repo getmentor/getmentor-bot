@@ -4,7 +4,8 @@ import { MentorContext } from "./bot/MentorContext"
 import {MenuTemplate, MenuMiddleware, createBackMainMenuButtons} from "telegraf-inline-menu";
 
 import { Context as TgContext, Markup, Telegraf } from 'telegraf'
-import { getMentor } from "./commands/start";
+import { onStart } from "./commands/start";
+import { getMentor } from "./commands/menu";
 import { getStatusCaption, isSet, setStatus } from "./commands/status";
 import { makeRequestsMenu } from "./commands/requests";
 import { makeTagsMenu } from "./commands/tags";
@@ -38,7 +39,8 @@ makeTagsMenu(menu);
 menu.switchToCurrentChat('Calendly', 'calendly');
 
 const menuMiddleware = new MenuMiddleware('/', menu)
-bot.command('start', ctx => menuMiddleware.replyToContext(ctx))
+bot.command('menu', ctx => menuMiddleware.replyToContext(ctx))
+bot.command('start', ctx => onStart(ctx))
 bot.use(menuMiddleware)
 
 bot.on('message', (ctx) => processMessage(ctx, airtable));
@@ -52,9 +54,11 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
     try {
         const chat_id = req.body.callback_query ?
             req.body.callback_query.message.chat.id
-            : req.body.inline_query ? 
+            : req.body.inline_query ?
                 req.body.inline_query.from.id
-                : req.body.message.chat.id;
+                : req.body.edited_message ?
+                    req.body.edited_message.chat.id
+                    : req.body.message.chat.id;
 
         airtable = new AirtableBase(process.env["AIRTABLE_API_KEY"], process.env['AIRTABLE_BASE_ID'], chat_id);
         await airtable.getMentorByTelegramId(chat_id);

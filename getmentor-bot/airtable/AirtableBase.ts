@@ -97,4 +97,13 @@ export class AirtableBase {
 
         return new Mentor(records[0]);
     }
+
+    public async setMentorTelegramChatId(mentorId: string, chatId: number): Promise<Mentor> {
+        let record = await this.base.table('Mentors').update(mentorId, {
+            "Telegram Chat Id": `${chatId}`
+        });
+
+        this._mentor = new Mentor(record);
+        return this._mentor;
+    }
 }

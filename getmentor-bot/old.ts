@@ -4,7 +4,7 @@ import { MentorContext } from "./bot/MentorContext"
 import {MenuTemplate, MenuMiddleware, createBackMainMenuButtons} from "telegraf-inline-menu";
 
 import { Context as TgContext, Markup, Telegraf } from 'telegraf'
-import { getMentor } from "./commands/start";
+import { getMentor } from "./commands/menu";
 import { getStatusCaption, isSet, setStatus } from "./commands/status";
 
 const { TELEGRAM_BOT_TOKEN, WEBHOOK_ADDRESS } = process.env;
