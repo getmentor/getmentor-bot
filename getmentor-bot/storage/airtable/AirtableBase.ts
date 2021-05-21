@@ -1,18 +1,17 @@
-import { Mentor, MentorStatus } from "../models/Mentor";
+import { Mentor, MentorStatus } from "../../models/Mentor";
 
 import Airtable from "airtable";
 import Base from "airtable/lib/base";
-import { MentorClientRequest } from "../models/MentorClientRequest";
-import { Tag } from "../models/Tag";
+import { MentorClientRequest } from "../../models/MentorClientRequest";
+import { Tag } from "../../models/Tag";
+import { MentorStorage } from "../MentorStorage";
 
-//var Airtable = require('airtable');
 
-export class AirtableBase {
+export class AirtableBase implements MentorStorage {
     base: Base;
     airtable: Airtable;
 
     private _allTags: Map<string, Tag>;
-    private _chatId : number;
     private _mentor: Mentor;
     public get mentor(): Mentor {
         return this._mentor;
@@ -25,7 +24,6 @@ export class AirtableBase {
         });
         this.base = new Base(this.airtable, baseId);
         this._allTags = undefined;
-        this._chatId = chatId;
     }
 
     public async getMentorByTelegramId(chatId: number | string) : Promise<Mentor> {

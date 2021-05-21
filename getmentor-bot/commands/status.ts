@@ -26,6 +26,6 @@ export async function setStatus(context: MentorContext, newState: boolean): Prom
     return true
 }
 
-export function isSet(context: MentorContext): boolean {
+export function isStatusSet(context: MentorContext): boolean {
     return context.airtable.mentor.status === MentorStatus.active
 }

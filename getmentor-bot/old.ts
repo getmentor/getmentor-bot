@@ -1,3 +1,4 @@
+/*
 import { AzureFunction, Context, HttpRequest } from "@azure/functions"
 import { AirtableBase } from "./airtable/AirtableBase"
 import { MentorContext } from "./bot/MentorContext"
@@ -267,3 +268,4 @@ async function processCallback(ctx: TgContext, base: AirtableBase) {
 }
 
 export default httpTrigger;
+*/

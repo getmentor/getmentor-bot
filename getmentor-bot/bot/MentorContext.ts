@@ -1,7 +1,7 @@
 import { Context as TgContext} from 'telegraf';
-import { AirtableBase } from '../airtable/AirtableBase';
+import { MentorStorage } from '../storage/MentorStorage';
 
 export interface MentorContext extends TgContext {
-    airtable: AirtableBase;
+    airtable: MentorStorage;
     match: RegExpExecArray | undefined;
 }
