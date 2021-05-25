@@ -8,12 +8,12 @@ export function makeRequestsMenu(menu: MenuTemplate<MentorContext>) {
     const singleRequestSubmenu = new MenuTemplate<MentorContext>(singleRequestText)
     function singleRequestText(ctx: MentorContext): string {
         const id = ctx.match![1]!;
-        let request = ctx.airtable.mentor.requests.find(r => r.airtable_id === id);
+        let request = ctx.mentor.requests.find(r => r.airtable_id === id);
         return request ? request.name : 'unknown';
     }
 
     function requestButtonText(ctx: MentorContext, key: string): string {
-        let request = ctx.airtable.mentor.requests.find(r => r.airtable_id === key);
+        let request = ctx.mentor.requests.find(r => r.airtable_id === key);
         return request ? request.name : 'unknown';
     }
 
@@ -29,7 +29,7 @@ export function makeRequestsMenu(menu: MenuTemplate<MentorContext>) {
 
     requestsMenu.chooseIntoSubmenu('request', 
         (ctx) => {
-            return ctx.airtable.mentor.requests.map((r) => r.airtable_id)
+            return ctx.mentor.requests.map((r) => r.airtable_id)
         }
         , singleRequestSubmenu
         , {
@@ -39,6 +39,6 @@ export function makeRequestsMenu(menu: MenuTemplate<MentorContext>) {
 
     requestsMenu.manualRow(backButtons);
     menu.submenu('<h1>Заявки</h1>', 'requests', requestsMenu, {
-        hide: (ctx) => ctx.airtable.mentor.requests.length === 0
+        hide: (ctx) => ctx.mentor.requests.length === 0
     })
 }

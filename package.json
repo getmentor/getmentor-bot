@@ -11,8 +11,10 @@
   },
   "dependencies": {
     "airtable": "^0.10.1",
+    "node-cache": "^5.1.2",
     "telegraf": "^4.3.0",
-    "telegraf-inline-menu": "^6.2.1"
+    "telegraf-inline-menu": "^6.2.1",
+    "telegram-format": "^2.0.2"
   },
   "devDependencies": {
     "@azure/functions": "^1.0.2-beta2",

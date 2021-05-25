@@ -1,8 +1,10 @@
 import { MentorContext } from "../bot/MentorContext"
+import { stringsStart } from "../strings/start";
+import { onCode } from "./code";
 
 export async function onStart(ctx: MentorContext) {
-    if (ctx.airtable.mentor) {
-        ctx.reply(`Hello ${ctx.airtable.mentor.name}.\nPlease use /menu command to navigate.`);
+    if (ctx.mentor) {
+        ctx.reply(`Hello ${ctx.mentor.name}.\nPlease use /menu command to navigate.`);
         return;
     }
 
@@ -10,18 +12,8 @@ export async function onStart(ctx: MentorContext) {
     
     let matches = re.exec(ctx.message["text"]);
     if (matches && matches.length > 1) {
-        let mentor = await ctx.airtable.getMentorBySecretCode(matches[1]);
-        if (mentor) {
-            let new_mentor = await ctx.airtable.setMentorTelegramChatId(mentor.airtable_id, ctx.message.chat.id);
-            if (new_mentor) {
-                ctx.reply(`Hooray! Мы тебя знаем, ${ctx.airtable.mentor.name}.`);
-            } else {
-                ctx.reply('wtf');
-            }
-        } else {
-            ctx.reply('cant find mentor');
-        }
+        onCode(ctx, matches[1]);
     } else {
-        ctx.reply('unknown code');
+        ctx.replyWithHTML(stringsStart.welcomeAnonymous());
     }
 }

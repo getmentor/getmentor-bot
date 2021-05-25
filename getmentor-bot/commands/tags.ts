@@ -10,7 +10,7 @@ export function makeTagsMenu(menu: MenuTemplate<MentorContext>) {
     tagsMenu.select(
         'tag', 
         async (ctx) => {
-            let tags = await ctx.airtable.getAllTags();
+            let tags = await ctx.storage.getAllTags();
             let choices = new Map<string, string>();
             tags.forEach( (t) => choices.set(t.airtable_id, t.name) );
             return choices;
@@ -22,19 +22,19 @@ export function makeTagsMenu(menu: MenuTemplate<MentorContext>) {
                 currentPage = page
             },
             isSet: async (ctx, key) => {
-                return ctx.airtable.mentor.tag_ids.includes(key);
+                return ctx.mentor.tag_ids.includes(key);
             },
             set: async (ctx, key, newState) => {
                 if (newState) {
-                    ctx.airtable.mentor.tag_ids.push(key);
+                    ctx.mentor.tag_ids.push(key);
                 } else {
-                    let idx = ctx.airtable.mentor.tag_ids.indexOf(key);
+                    let idx = ctx.mentor.tag_ids.indexOf(key);
                     if (idx > -1) {
-                        ctx.airtable.mentor.tag_ids.splice(idx, 1);
+                        ctx.mentor.tag_ids.splice(idx, 1);
                     }
                 }
 
-                ctx.airtable.setMentorTags(ctx.airtable.mentor)
+                ctx.mentor = await ctx.storage.setMentorTags(ctx.mentor)
                 return true
             }
         }

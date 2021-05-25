@@ -9,7 +9,7 @@ export function mainMenu(): MenuTemplate<MentorContext> {
 
     // Profile URL
     menu.url('Profile', (ctx) => {
-        return ctx.airtable.mentor ? ctx.airtable.mentor.url : 'https://getmentor.dev';
+        return ctx.mentor ? ctx.mentor.url : 'https://getmentor.dev';
     });
     // Status
     menu.toggle(getStatusCaption, 'status', {
@@ -27,5 +27,5 @@ export function mainMenu(): MenuTemplate<MentorContext> {
 }
 
 function getMentor(ctx: MentorContext): string {
-    return 'Hello ' + ctx.airtable.mentor ? ctx.airtable.mentor.name : 'stranger';
+    return 'Hello ' + ctx.mentor ? ctx.mentor.name : 'stranger';
 }

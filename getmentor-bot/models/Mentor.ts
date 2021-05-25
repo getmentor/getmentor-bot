@@ -2,10 +2,10 @@ import { MentorClientRequest } from "./MentorClientRequest";
 import { Tag } from "./Tag";
 
 export enum MentorStatus {
-    pending,
-    active,
-    inactive,
-    declined
+    pending = "pending",
+    active = "active",
+    inactive = "inactive",
+    declined = "declined"
 }
 
 export enum MentorExperience {
@@ -17,15 +17,15 @@ export enum MentorExperience {
 
 export enum MentorPrice {
     free = "Бесплатно",
-    p1000 = "1000",
-    p2000 = "2000",
-    p3000 = "3000",
-    p4000 = "4000",
-    p5000 = "5000",
-    p6000 = "6000",
-    p7000 = "7000",
-    p8000 = "8000",
-    p9000 = "9000",
+    p1000 = "1000 руб",
+    p2000 = "2000 руб",
+    p3000 = "3000 руб",
+    p4000 = "4000 руб",
+    p5000 = "5000 руб",
+    p6000 = "6000 руб",
+    p7000 = "7000 руб",
+    p8000 = "8000 руб",
+    p9000 = "9000 руб",
     custom = "По договоренности"
 }
 
@@ -58,11 +58,11 @@ export class Mentor {
         this.tg_secret = record.fields.TgSecret;
         this.tg_username = record.fields.Telegram;
         this.tg_chat_id = record.fields["Telegram Chat Id"];
-        this.price = MentorPrice[record.fields.Price as keyof typeof MentorPrice];
-        this.status = MentorStatus[record.fields.Status as keyof typeof MentorStatus];
+        this.price = record.fields.Price as MentorPrice;
+        this.status = record.fields.Status as MentorStatus;
         this.tag_ids = record.fields["Tags Links"];
         this.image = record.fields.Image;
-        this.experience = MentorExperience[record.fields.Experience as keyof typeof MentorExperience];
+        this.experience = record.fields.Experience as MentorExperience;
         this.remarks = record.fields.Remarks;
         this.calendar = record.fields.Calendly;
         this.requests = [];

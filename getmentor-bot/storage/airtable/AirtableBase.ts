@@ -5,54 +5,69 @@ import Base from "airtable/lib/base";
 import { MentorClientRequest } from "../../models/MentorClientRequest";
 import { Tag } from "../../models/Tag";
 import { MentorStorage } from "../MentorStorage";
-
+import NodeCache = require("node-cache");
 
 export class AirtableBase implements MentorStorage {
     base: Base;
     airtable: Airtable;
+    
+    _mentorsCache: NodeCache;
+    _tagsCache: NodeCache;
 
     private _allTags: Map<string, Tag>;
-    private _mentor: Mentor;
-    public get mentor(): Mentor {
-        return this._mentor;
-    }
     
-    constructor(apiKey: string, baseId: string, chatId: number) {
+    constructor(apiKey: string, baseId: string) {
         this.airtable= new Airtable({
             endpointUrl: 'https://api.airtable.com',
             apiKey: apiKey
         });
         this.base = new Base(this.airtable, baseId);
         this._allTags = undefined;
+
+        this._mentorsCache = new NodeCache({ stdTTL: 60, checkperiod: 10 });
     }
 
     public async getMentorByTelegramId(chatId: number | string) : Promise<Mentor> {
-        this._mentor = await this.getMentorByField('{Telegram Chat Id}', chatId);
-        return this._mentor;
+        let mentor = this._mentorsCache.get(chatId) as Mentor;
+
+        if ( !mentor ) {
+            mentor = await this.getMentorByField('{Telegram Chat Id}', chatId);
+            this._mentorsCache.set(chatId, mentor);
+        } else {
+            mentor.name = mentor.name + ' (cached)';
+        }
+
+        return mentor;
     }
 
     public async getMentorBySecretCode(code: string) : Promise<Mentor> {
-        return this.getMentorByField('{TgSecret}', code);
+        let mentor = await this.getMentorByField('{TgSecret}', code);
+        return mentor;
     }
 
-    public async setMentorStatus(newStatus: MentorStatus) {
-        if (!this._mentor) return;
-        if (this._mentor.status === newStatus) return;
+    public async setMentorStatus(mentor: Mentor, newStatus: MentorStatus): Promise<Mentor> {
+        if (!mentor) return;
+        if (mentor.status === newStatus) return;
 
-        await this.base.table('Mentors').update(this._mentor.airtable_id, {
+        let record = await this.base.table('Mentors').update(mentor.airtable_id, {
             "Status": MentorStatus[newStatus]
         });
+        let newMentor = new Mentor(record);
+        this._mentorsCache.set(newMentor.tg_chat_id, newMentor);
 
-        this._mentor.status = newStatus;
+        return newMentor;
     }
 
-    public async setMentorTags(mentor: Mentor) {
+    public async setMentorTags(mentor: Mentor): Promise<Mentor> {
         if (!mentor) return;
 
         let record = await this.base.table('Mentors').update(mentor.airtable_id, {
             "Tags Links": mentor.tag_ids
         });
-        //this._mentor = new Mentor(record);
+        let newMentor = new Mentor(record);
+        this._mentorsCache.set(newMentor.tg_chat_id, newMentor);
+        
+        return newMentor;
     }
 
     public async getMentorRequests(mentor: Mentor) {
@@ -101,7 +116,8 @@ export class AirtableBase implements MentorStorage {
             "Telegram Chat Id": `${chatId}`
         });
 
-        this._mentor = new Mentor(record);
-        return this._mentor;
+        let mentor = new Mentor(record);
+        this._mentorsCache.set(chatId, mentor);
+        return mentor;
     }
 }
