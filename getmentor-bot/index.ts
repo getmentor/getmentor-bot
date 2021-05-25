@@ -29,6 +29,10 @@ bot.command('menu', ctx => menuMiddleware.replyToContext(ctx))
 
 bot.use(menuMiddleware);
 
+bot.catch(error => {
+    console.error(error)
+})
+
 // Enable graceful stop
 process.once('SIGINT', () => bot.stop('SIGINT'));
 process.once('SIGTERM', () => bot.stop('SIGTERM'));

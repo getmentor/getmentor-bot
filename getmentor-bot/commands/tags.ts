@@ -35,6 +35,7 @@ export function makeTagsMenu(menu: MenuTemplate<MentorContext>) {
                 }
 
                 ctx.mentor = await ctx.storage.setMentorTags(ctx.mentor)
+                ctx.mentor.requests = await ctx.storage.getMentorRequests(ctx.mentor);
                 return true
             }
         }
@@ -42,5 +43,5 @@ export function makeTagsMenu(menu: MenuTemplate<MentorContext>) {
 
     tagsMenu.manualRow(backButtons);
 
-    menu.submenu('Тэги', 'tags', tagsMenu);
+    menu.submenu('Редактировать тэги', 'tags', tagsMenu);
 }

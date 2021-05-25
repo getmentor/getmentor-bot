@@ -12,7 +12,7 @@ export class AirtableBase implements MentorStorage {
     airtable: Airtable;
     
     _mentorsCache: NodeCache;
-    _tagsCache: NodeCache;
+    _requestsCache: NodeCache;
 
     private _allTags: Map<string, Tag>;
     
@@ -25,6 +25,7 @@ export class AirtableBase implements MentorStorage {
         this._allTags = undefined;
 
         this._mentorsCache = new NodeCache({ stdTTL: 60, checkperiod: 10 });
+        this._requestsCache = new NodeCache({ stdTTL: 60, checkperiod: 10 });
     }
 
     public async getMentorByTelegramId(chatId: number | string) : Promise<Mentor> {
@@ -33,8 +34,6 @@ export class AirtableBase implements MentorStorage {
         if ( !mentor ) {
             mentor = await this.getMentorByField('{Telegram Chat Id}', chatId);
             this._mentorsCache.set(chatId, mentor);
-        } else {
-            mentor.name = mentor.name + ' (cached)';
         }
 
         return mentor;
@@ -42,6 +41,9 @@ export class AirtableBase implements MentorStorage {
 
     public async getMentorBySecretCode(code: string) : Promise<Mentor> {
         let mentor = await this.getMentorByField('{TgSecret}', code);
+        if (mentor) {
+            this._mentorsCache.set(mentor.tg_chat_id, mentor);
+        }
         return mentor;
     }
 
@@ -49,75 +51,84 @@ export class AirtableBase implements MentorStorage {
         if (!mentor) return;
         if (mentor.status === newStatus) return;
 
-        let record = await this.base.table('Mentors').update(mentor.airtable_id, {
+        return this.base.table('Mentors').update(mentor.airtable_id, {
             "Status": MentorStatus[newStatus]
+        }).then(record => {
+            let newMentor = new Mentor(record);
+            this._mentorsCache.set(newMentor.tg_chat_id, newMentor);
+            return newMentor;
         });
-        let newMentor = new Mentor(record);
-        this._mentorsCache.set(newMentor.tg_chat_id, newMentor);
-
-        return newMentor;
     }
 
     public async setMentorTags(mentor: Mentor): Promise<Mentor> {
         if (!mentor) return;
 
-        let record = await this.base.table('Mentors').update(mentor.airtable_id, {
+        return this.base.table('Mentors').update(mentor.airtable_id, {
             "Tags Links": mentor.tag_ids
+        }).then(record => {
+            let newMentor = new Mentor(record);
+            this._mentorsCache.set(newMentor.tg_chat_id, newMentor);
+            return newMentor;
         });
-        let newMentor = new Mentor(record);
-        this._mentorsCache.set(newMentor.tg_chat_id, newMentor);
-        
-        return newMentor;
     }
 
-    public async getMentorRequests(mentor: Mentor) {
-        let requests = await this.base.table('Client Requests').select({
-                view: "Grid view",
-                filterByFormula: `AND({Mentor Id}='${mentor.airtable_id}',Status!='done',Status!='declined')`,
-                sort: [{field: "Last Modified Time", direction: "asc"}]
-        }).firstPage();
+    public async getMentorRequests(mentor: Mentor): Promise<Array<MentorClientRequest>> {
+        let requests = this._requestsCache.get(mentor.airtable_id) as MentorClientRequest[];
 
-        requests.forEach(r => {
-           mentor.requests.push(new MentorClientRequest(r));
-        });
+        if (!requests ) {
+            requests = await this.base.table('Client Requests').select({
+                    view: "Grid view",
+                    filterByFormula: `AND({Mentor Id}='${mentor.airtable_id}',Status!='done',Status!='declined')`,
+                    sort: [{field: "Last Modified Time", direction: "asc"}]
+            })
+            .firstPage()
+            .then( records => {
+                let rs = new Array<MentorClientRequest>();
+                records.forEach(r => {
+                    rs.push(new MentorClientRequest(r));
+                 });
+                 return rs;
+            });
 
-        return mentor;
+            this._requestsCache.set(mentor.airtable_id, requests);
+        }
+
+        return requests;
     }
 
     public async getAllTags(): Promise<Map<string, Tag>> {
         if ( !this._allTags ) {
             this._allTags = new Map<string, Tag>();
 
-            let tags = await this.base.table('Tags').select({
+            await this.base.table('Tags').select({
                     view: "General"
-            }).firstPage();
-
-            const tagObjects = tags.map( t => new Tag(t));
-            tagObjects.forEach( t => this._allTags.set(t.airtable_id, t));
+            }).firstPage().then(tags => {
+                let tagObjects = tags.map( t => new Tag(t));
+                tagObjects.forEach(t => this._allTags.set(t.airtable_id, t));
+            });
         }
 
         return this._allTags;
     }
 
     private async getMentorByField(fieldName: string, fieldValue: any) : Promise<Mentor> {
-        let records = await this.base.table('Mentors').select({
+        return this.base.table('Mentors').select({
             maxRecords: 1,
             view: "Grid view",
             filterByFormula: `${fieldName}='${fieldValue}'`
-        }).firstPage();
-
-        if (records.length === 0) return undefined;
-
-        return new Mentor(records[0]);
+        }).firstPage().then(records => {
+            if (records.length === 0) return undefined;
+            return new Mentor(records[0]);
+        });
     }
 
     public async setMentorTelegramChatId(mentorId: string, chatId: number): Promise<Mentor> {
-        let record = await this.base.table('Mentors').update(mentorId, {
+        return this.base.table('Mentors').update(mentorId, {
             "Telegram Chat Id": `${chatId}`
+        }).then(r => {
+            let mentor = new Mentor(r);
+            this._mentorsCache.set(chatId, mentor);
+            return mentor;
         });
-
-        let mentor = new Mentor(record);
-        this._mentorsCache.set(chatId, mentor);
-        return mentor;
     }
 }

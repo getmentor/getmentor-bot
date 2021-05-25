@@ -1,4 +1,5 @@
 import { Mentor, MentorStatus } from "../models/Mentor";
+import { MentorClientRequest } from "../models/MentorClientRequest";
 import { Tag } from "../models/Tag";
 
 export interface MentorStorage {
@@ -8,7 +9,7 @@ export interface MentorStorage {
     getMentorBySecretCode(code: string): Promise<Mentor>;
     setMentorStatus(mentor: Mentor, newStatus: MentorStatus): Promise<Mentor>;
     setMentorTags(mentor: Mentor): Promise<Mentor>;
-    getMentorRequests(mentor: Mentor);
+    getMentorRequests(mentor: Mentor): Promise<Array<MentorClientRequest>>;
     getAllTags(): Promise<Map<string, Tag>>;
     setMentorTelegramChatId(mentorId: string, chatId: number): Promise<Mentor>;
 }

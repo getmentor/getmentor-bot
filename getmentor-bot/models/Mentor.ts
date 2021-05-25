@@ -46,7 +46,7 @@ export class Mentor {
     experience: MentorExperience;
     remarks: string;
     calendar: string;
-    requests: MentorClientRequest[];
+    requests: Array<MentorClientRequest>;
 
     constructor(record: any) {
         this.airtable_id = record.id;
@@ -65,6 +65,5 @@ export class Mentor {
         this.experience = record.fields.Experience as MentorExperience;
         this.remarks = record.fields.Remarks;
         this.calendar = record.fields.Calendly;
-        this.requests = [];
     };
 }

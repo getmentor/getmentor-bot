@@ -12,8 +12,10 @@ export const stringsCode = {
 return `Привет ${mentor.name}!
 
 Спасибо, что присоединились к нашей команде менторов!
+Для управления своим профилем и работой с заявками, напишите мне команду /menu.
         
 Вот информация, которую мы о вас знаем:
+==========
 ${format.bold('Должность')}
 ${format.escape(mentor.description)}
         
@@ -25,8 +27,7 @@ ${mentor.experience}
         
 ${format.bold('Стоимость')}
 ${mentor.price}
-        
-${format.bold('Статус:')} ${MentorUtils.formatStatus(mentor.status)}
+==========
         
 Если у вас есть какие-то вопросы, напишите нам на ${stringsCommon.contactEmail} и мы обязательно поможем!`
     }

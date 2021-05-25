@@ -6,11 +6,12 @@ export function getStatusCaption(ctx: MentorContext): string {
     return 'Статус: ' + MentorUtils.formatStatus(ctx.mentor.status);
 }
 
-export async function setStatus(context: MentorContext, newState: boolean): Promise<boolean> {
-    context.mentor = await context.storage.setMentorStatus(
-        context.mentor,
+export async function setStatus(ctx: MentorContext, newState: boolean): Promise<boolean> {
+    ctx.mentor = await ctx.storage.setMentorStatus(
+        ctx.mentor,
         newState ? MentorStatus.active : MentorStatus.inactive
     );
+    ctx.mentor.requests = await ctx.storage.getMentorRequests(ctx.mentor);
 
     return true
 }

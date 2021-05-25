@@ -38,7 +38,10 @@ export function makeRequestsMenu(menu: MenuTemplate<MentorContext>) {
         });
 
     requestsMenu.manualRow(backButtons);
-    menu.submenu('<h1>Заявки</h1>', 'requests', requestsMenu, {
-        hide: (ctx) => ctx.mentor.requests.length === 0
-    })
+    menu.submenu(ctx => '👉 Ваши заявки (активных: '+ctx.mentor.requests.length+')',
+        'requests',
+        requestsMenu, {
+            hide: (ctx) => !ctx.mentor.requests || ctx.mentor.requests.length === 0
+        }
+    )
 }
