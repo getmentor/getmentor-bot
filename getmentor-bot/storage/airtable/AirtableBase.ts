@@ -24,8 +24,8 @@ export class AirtableBase implements MentorStorage {
         this.base = new Base(this.airtable, baseId);
         this._allTags = undefined;
 
-        this._mentorsCache = new NodeCache({ stdTTL: 60, checkperiod: 10 });
-        this._requestsCache = new NodeCache({ stdTTL: 60, checkperiod: 10 });
+        this._mentorsCache = new NodeCache({ stdTTL: 600, checkperiod: 60 });
+        this._requestsCache = new NodeCache({ stdTTL: 600, checkperiod: 60 });
     }
 
     public async getMentorByTelegramId(chatId: number | string) : Promise<Mentor> {
