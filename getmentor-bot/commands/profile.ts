@@ -1,5 +1,5 @@
 import { MenuTemplate } from "telegraf-inline-menu";
-import { backButtons } from "../bot/general";
+import { backButtons, editProfileHandler } from "../bot/general";
 import { MentorContext } from "../bot/MentorContext";
 import { getStatusCaption, isStatusSet, setStatus } from "./status";
 import { makeTagsMenu } from "./tags";
@@ -21,6 +21,15 @@ export function makeEditProfileMenu(menu: MenuTemplate<MentorContext>) {
 
     // Tags
     makeTagsMenu(profileMenu);
+
+    // Edit description
+    profileMenu.interact('Изменить описание', 'edit_profile_description', {
+        do: async (ctx, _) => {
+            let text = "Введите новый текст для описания профиля. Можно использоаться базовый HTML для форматирования"
+            await editProfileHandler.replyWithMarkdown(ctx, text, 'edit_profile_description');
+            return false;
+        }
+    });
 
     profileMenu.manualRow(backButtons);
 
