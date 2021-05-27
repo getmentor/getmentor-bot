@@ -30,5 +30,9 @@ ${mentor.price}
 ==========
         
 Если у вас есть какие-то вопросы, напишите нам на ${stringsCommon.contactEmail} и мы обязательно поможем!`
+    },
+
+    alreadyKnown: (mentor: Mentor) => {
+        return `Мы вас уже знаем, ${mentor.name}.`
     }
 }

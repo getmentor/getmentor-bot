@@ -6,7 +6,7 @@ export async function commonMiddleware(storage: MentorStorage, ctx: MentorContex
 
     ctx.storage = storage;
     ctx.mentor = await storage.getMentorByTelegramId(chat_id);
-    if ( !ctx.mentor.requests ) {
+    if ( ctx.mentor && !ctx.mentor.requests ) {
         ctx.mentor.requests = await storage.getMentorRequests(ctx.mentor);
     }
 

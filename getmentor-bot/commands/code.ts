@@ -2,7 +2,12 @@ import { MentorContext } from "../bot/MentorContext"
 import { stringsCode } from "../strings/code";
 
 export async function onCode(ctx: MentorContext, code: string) {
-    let re = /[0-9a-zA-Z]{8}/i;
+    if (ctx.mentor) {
+        ctx.replyWithHTML(stringsCode.alreadyKnown(ctx.mentor));
+        return;
+    };
+
+    let re = /^[0-9a-zA-Z]{8}$/i;
 
     if ( re.test(code) ) {
         let mentor = await ctx.storage.getMentorBySecretCode(code);

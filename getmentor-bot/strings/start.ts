@@ -13,5 +13,11 @@ ${format.url(stringsCommon.beMentorUrl, stringsCommon.beMentorUrl)}
 А если вы по какой-то причине не получили письмо или не можете найти секретный код, то напишите нам на ${stringsCommon.contactEmail}.
         
 Спасибо!`
+    },
+
+    denyInactiveMentors: () => {
+        return `Наш бот доступен только активным менторам сервиса.
+
+Ваш профиль сейчас не подтвержден нашими модераторами. Если вы считаете, что это ошибка, или у вас есть какие-то вопросы, напишите нам на ${stringsCommon.contactEmail}`;
     }
 };

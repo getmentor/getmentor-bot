@@ -49,27 +49,14 @@ export class AirtableBase implements MentorStorage {
 
     public async setMentorStatus(mentor: Mentor, newStatus: MentorStatus): Promise<Mentor> {
         if (!mentor) return;
-        if (mentor.status === newStatus) return;
+        if (mentor.status === newStatus) return mentor;
 
-        return this.base.table('Mentors').update(mentor.airtable_id, {
-            "Status": MentorStatus[newStatus]
-        }).then(record => {
-            let newMentor = new Mentor(record);
-            this._mentorsCache.set(newMentor.tg_chat_id, newMentor);
-            return newMentor;
-        });
+        return this.updateMentorField(mentor, 'Status', MentorStatus[newStatus]);
     }
 
-    public async setMentorTags(mentor: Mentor): Promise<Mentor> {
+    public async setMentorTags(mentor: Mentor, newTagIds: string[]): Promise<Mentor> {
         if (!mentor) return;
-
-        return this.base.table('Mentors').update(mentor.airtable_id, {
-            "Tags Links": mentor.tag_ids
-        }).then(record => {
-            let newMentor = new Mentor(record);
-            this._mentorsCache.set(newMentor.tg_chat_id, newMentor);
-            return newMentor;
-        });
+        return this.updateMentorField(mentor, 'Tags Links', newTagIds);
     }
 
     public async getMentorRequests(mentor: Mentor): Promise<Array<MentorClientRequest>> {
@@ -129,6 +116,26 @@ export class AirtableBase implements MentorStorage {
             let mentor = new Mentor(r);
             this._mentorsCache.set(chatId, mentor);
             return mentor;
+        });
+    }
+
+    public async setMentorDescription(mentor: Mentor, newDescription: string): Promise<Mentor> {
+        if (!mentor) return;
+
+        return this.updateMentorField(mentor, 'Details', newDescription);
+    }
+
+    private async updateMentorField(mentor: Mentor, fieldName: string, newValue: any): Promise<Mentor> {
+        if (!mentor) return;
+
+        let opts = {};
+        opts[fieldName] = newValue;
+
+        return this.base.table('Mentors').update(mentor.airtable_id, opts)
+        .then(record => {
+            let newMentor = new Mentor(record);
+            this._mentorsCache.set(newMentor.tg_chat_id, newMentor);
+            return newMentor;
         });
     }
 }
