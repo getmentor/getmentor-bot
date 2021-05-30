@@ -1,5 +1,4 @@
 import { MentorClientRequest } from "./MentorClientRequest";
-import { Tag } from "./Tag";
 
 export enum MentorStatus {
     pending = "pending",
@@ -36,12 +35,14 @@ export class Mentor {
     description: string;
     details: string;
     url: string;
+    alias: string;
     tg_secret: string;
     tg_username: string;
     tg_chat_id: string;
     price: MentorPrice;
     status: MentorStatus;
     tag_ids: string[];
+    tags: string;
     image: string;
     experience: MentorExperience;
     remarks: string;
@@ -55,12 +56,14 @@ export class Mentor {
         this.description = record.fields.Description;
         this.details = record.fields.Details;
         this.url = record.fields["Profile Url"];
+        this.alias = record.fields.Alias;
         this.tg_secret = record.fields.TgSecret;
         this.tg_username = record.fields.Telegram;
         this.tg_chat_id = record.fields["Telegram Chat Id"];
         this.price = record.fields.Price as MentorPrice;
         this.status = record.fields.Status as MentorStatus;
         this.tag_ids = record.fields["Tags Links"];
+        this.tags = record.fields.Tags;
         this.image = record.fields.Image;
         this.experience = record.fields.Experience as MentorExperience;
         this.remarks = record.fields.Remarks;

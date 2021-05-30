@@ -6,6 +6,7 @@ import { MentorClientRequest } from "../../models/MentorClientRequest";
 import { Tag } from "../../models/Tag";
 import { MentorStorage } from "../MentorStorage";
 import NodeCache = require("node-cache");
+import { stringsContent } from "../../strings/content";
 
 export class AirtableBase implements MentorStorage {
     base: Base;
@@ -136,6 +137,71 @@ export class AirtableBase implements MentorStorage {
             let newMentor = new Mentor(record);
             this._mentorsCache.set(newMentor.tg_chat_id, newMentor);
             return newMentor;
-        });
+        }).then(async m => await this._recreateMentorProfilePage(m));
+    }
+
+    private async _recreateMentorProfilePage(mentor: Mentor): Promise<Mentor> {
+        if (!mentor) return;
+
+        return this.base.table('Content').select({
+            view: "Grid view",
+            filterByFormula: `Page='${mentor.alias}'`
+        }).firstPage().then(async records => {
+            if (records && records.length > 0) {
+                return this.base.table('Content').destroy(
+                    records.map(r => r.id)
+                )
+            }
+            return;
+        }).then(
+            async _ => {
+                let header = {
+                    "fields": {
+                        "Id": "header",
+                        "Type": 'Hero',
+                        "Text color": "#1A2238",
+                        "Background color": "#fcf8f2",
+                        "Title": mentor.name,
+                        "Text": stringsContent.headline(mentor),
+                        "Page": mentor.alias,
+                        "Content Type": "mentor"
+                    }
+                };
+
+                let body = {
+                    "fields": {
+                        "Id": "body",
+                        "Type": 'Image left, text right',
+                        "Text color": "#1A2238",
+                        "Background color": "#fcf8f2",
+                        "Text": stringsContent.description(mentor),
+                        "Options": stringsContent.descriptionOptions(mentor),
+                        "Page": mentor.alias,
+                        "Content Type": "mentor"
+                    }
+                };
+
+                let footer = {
+                    "fields": {
+                        "Id": "footer",
+                        "Type": "Footer",
+                        "Text color": "#1A2238",
+                        "Background color": "#fcf8f2",
+                        "Text": stringsContent.footer(),
+                        "Page": mentor.alias,
+                        "Content Type": "mentor"
+                    }
+                };
+
+                return this.base.table('Content').create([
+                    header,
+                    body,
+                    footer
+                ])
+        }).catch(
+            error => console.log(error)
+        ).then(
+            _ => mentor
+        )
     }
 }
