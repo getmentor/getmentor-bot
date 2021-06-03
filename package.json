@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "airtable": "^0.10.1",
+    "applicationinsights": "^2.1.0",
     "node-cache": "^5.1.2",
     "telegraf": "^4.3.0",
     "telegraf-inline-menu": "^6.2.1",

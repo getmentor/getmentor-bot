@@ -1,3 +1,6 @@
+let appInsights = require('applicationinsights');
+appInsights.setup().start();
+
 import { AzureFunction, Context, HttpRequest } from "@azure/functions"
 import { MentorContext } from "./bot/MentorContext"
 import { Telegraf, session } from 'telegraf'
