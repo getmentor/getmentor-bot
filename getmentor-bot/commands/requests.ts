@@ -1,47 +1,55 @@
 import { MenuTemplate } from "telegraf-inline-menu";
 import { backButtons } from "../bot/general";
 import { MentorContext } from "../bot/MentorContext";
+import { requestButtonText, singleRequestSubmenu } from "./singleRequest";
 
 export function makeRequestsMenu(menu: MenuTemplate<MentorContext>) {
-    const requestsMenu = new MenuTemplate<MentorContext>('Ваши текушие заявки')
+    const allRequestsMenu = new MenuTemplate<MentorContext>('Ваши заявки');
 
-    const singleRequestSubmenu = new MenuTemplate<MentorContext>(singleRequestText)
-    function singleRequestText(ctx: MentorContext): string {
-        const id = ctx.match![1]!;
-        let request = ctx.mentor.requests.find(r => r.airtable_id === id);
-        return request ? request.name : 'unknown';
-    }
-
-    function requestButtonText(ctx: MentorContext, key: string): string {
-        let request = ctx.mentor.requests.find(r => r.airtable_id === key);
-        return request ? request.name : 'unknown';
-    }
-
-    singleRequestSubmenu.interact('test', 'randomButton', {
-        do: async ctx => {
-            const id = ctx.match![1]!;
-            await ctx.answerCbQuery('Just a callback query answer')
-            return true;
-        }
-    });
-
-    singleRequestSubmenu.manualRow(backButtons);
-
-    requestsMenu.chooseIntoSubmenu('request', 
+    const activeRequestsMenu = new MenuTemplate<MentorContext>('Ваши текушие заявки')
+    activeRequestsMenu.chooseIntoSubmenu('request', 
         (ctx) => {
-            return ctx.mentor.requests.map((r) => r.airtable_id)
-        }
-        , singleRequestSubmenu
-        , {
+            return ctx.mentor.requests.map((r) => r.id)
+        },
+        singleRequestSubmenu(),
+        {
             buttonText: requestButtonText,
             columns: 1
-        });
+        }
+    );
+    activeRequestsMenu.manualRow(backButtons);
 
-    requestsMenu.manualRow(backButtons);
-    menu.submenu(ctx => '👉 Ваши заявки (активных: '+ctx.mentor.requests.length+')',
-        'requests',
-        requestsMenu, {
+    allRequestsMenu.submenu(ctx => '👉 Активные заявки ('+ctx.mentor.requests.length+')',
+        'active_requests',
+        activeRequestsMenu, {
             hide: (ctx) => !ctx.mentor.requests || ctx.mentor.requests.length === 0
         }
+    )
+
+    const archivedRequestsMenu = new MenuTemplate<MentorContext>('Прошедшие заявки')
+    archivedRequestsMenu.chooseIntoSubmenu('request', 
+        async (ctx) => {
+            ctx.mentor.archivedRequests = await ctx.storage.getMentorArchivedRequests(ctx.mentor);
+
+            return ctx.mentor.archivedRequests.map((r) => r.id)
+        },
+        singleRequestSubmenu(),
+        {
+            buttonText: requestButtonText,
+            columns: 1
+        }
+    );
+    archivedRequestsMenu.manualRow(backButtons);
+
+    allRequestsMenu.submenu(ctx => 'Прошедшие заявки',
+        'archived_requests',
+        archivedRequestsMenu
+    )
+
+    allRequestsMenu.manualRow(backButtons);
+
+    menu.submenu(ctx => '👉 Ваши заявки',
+        'requests',
+        allRequestsMenu
     )
 }

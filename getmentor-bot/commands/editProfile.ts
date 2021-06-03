@@ -6,7 +6,7 @@ export async function editProfile(ctx: MentorContext, additionalState: string) {
         switch (additionalState) {
             case 'edit_profile_description':
                 ctx.mentor = await ctx.storage.setMentorDescription(ctx.mentor, ctx.message.text);
-                ctx.mentor.requests = await ctx.storage.getMentorRequests(ctx.mentor);
+                ctx.mentor.requests = await ctx.storage.getMentorActiveRequests(ctx.mentor);
 
                 await ctx.reply(`Все сделано! На сайте описание может обновиться не сразу, дайте роботам время :)`);
                 break;

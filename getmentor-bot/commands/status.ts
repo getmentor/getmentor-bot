@@ -11,7 +11,7 @@ export async function setStatus(ctx: MentorContext, newState: boolean): Promise<
         ctx.mentor,
         newState ? MentorStatus.active : MentorStatus.inactive
     );
-    ctx.mentor.requests = await ctx.storage.getMentorRequests(ctx.mentor);
+    ctx.mentor.requests = await ctx.storage.getMentorActiveRequests(ctx.mentor);
 
     return true
 }

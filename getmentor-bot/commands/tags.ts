@@ -35,7 +35,7 @@ export function makeTagsMenu(menu: MenuTemplate<MentorContext>) {
                 }
 
                 ctx.mentor = await ctx.storage.setMentorTags(ctx.mentor, ctx.mentor.tag_ids)
-                ctx.mentor.requests = await ctx.storage.getMentorRequests(ctx.mentor);
+                ctx.mentor.requests = await ctx.storage.getMentorActiveRequests(ctx.mentor);
                 return true
             }
         }

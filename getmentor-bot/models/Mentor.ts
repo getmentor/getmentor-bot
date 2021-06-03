@@ -1,3 +1,4 @@
+import { MentorStorageRecord } from "../storage/MentorStorage";
 import { MentorClientRequest } from "./MentorClientRequest";
 
 export enum MentorStatus {
@@ -29,7 +30,7 @@ export enum MentorPrice {
 }
 
 export class Mentor {
-    airtable_id: string;
+    id: string;
     name: string;
     email: string;
     description: string;
@@ -48,25 +49,26 @@ export class Mentor {
     remarks: string;
     calendar: string;
     requests: Array<MentorClientRequest>;
+    archivedRequests: Array<MentorClientRequest>;
 
-    constructor(record: any) {
-        this.airtable_id = record.id;
-        this.name = record.fields.Title;
-        this.email = record.fields.Email;
-        this.description = record.fields.Description;
-        this.details = record.fields.Details;
-        this.url = record.fields["Profile Url"];
-        this.alias = record.fields.Alias;
-        this.tg_secret = record.fields.TgSecret;
-        this.tg_username = record.fields.Telegram;
-        this.tg_chat_id = record.fields["Telegram Chat Id"];
-        this.price = record.fields.Price as MentorPrice;
-        this.status = record.fields.Status as MentorStatus;
-        this.tag_ids = record.fields["Tags Links"];
-        this.tags = record.fields.Tags;
-        this.image = record.fields.Image;
-        this.experience = record.fields.Experience as MentorExperience;
-        this.remarks = record.fields.Remarks;
-        this.calendar = record.fields.Calendly;
+    constructor(record: MentorStorageRecord) {
+        this.id = record.id;
+        this.name = record.get("Title");
+        this.email = record.get("Email");
+        this.description = record.get("Description");
+        this.details = record.get("Details");
+        this.url = record.get("Profile Url");
+        this.alias = record.get("Alias");
+        this.tg_secret = record.get("TgSecret");
+        this.tg_username = record.get("Telegram");
+        this.tg_chat_id = record.get("Telegram Chat Id");
+        this.price = record.get("Price") as MentorPrice;
+        this.status = record.get("Status") as MentorStatus;
+        this.tag_ids = record.get("Tags Links");
+        this.tags = record.get("Tags");
+        this.image = record.get("Image");
+        this.experience = record.get("Experience") as MentorExperience;
+        this.remarks = record.get("Remarks");
+        this.calendar = record.get("Calendly");
     };
 }

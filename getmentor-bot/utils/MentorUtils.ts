@@ -1,4 +1,5 @@
 import { MentorExperience, MentorPrice, MentorStatus } from "../models/Mentor";
+import { MentorClientRequestStatus } from "../models/MentorClientRequest";
 
 export class MentorUtils {
     public static formatStatus(status: MentorStatus): string {
@@ -43,6 +44,56 @@ export class MentorUtils {
                 return '😎5-10 лет';
             case MentorExperience.rockstar:
                 return '🌟10+ лет';
+        }
+    }
+
+    public static formatRequestStatus(status: MentorClientRequestStatus): string {
+        switch (status) {
+            case MentorClientRequestStatus.pending:
+                return this.formatRequestStatusPrefix(status) + ' Новая';
+            
+            case MentorClientRequestStatus.contacted:
+                return this.formatRequestStatusPrefix(status) + ' Связались';
+            
+            case MentorClientRequestStatus.working:
+                return this.formatRequestStatusPrefix(status) + ' Запланирована';
+    
+            case MentorClientRequestStatus.done:
+                return this.formatRequestStatusPrefix(status) + ' Состоялась';
+
+            case MentorClientRequestStatus.reschedule:
+                return this.formatRequestStatusPrefix(status) + ' Перенесена';
+
+            case MentorClientRequestStatus.declined:
+                return this.formatRequestStatusPrefix(status) + ' Отклонена';
+        
+            default:
+                return this.formatRequestStatusPrefix(status) + ' Неизвестно';
+        }
+    }
+
+    public static formatRequestStatusPrefix(status: MentorClientRequestStatus): string {
+        switch (status) {
+            case MentorClientRequestStatus.pending:
+                return '⏳';
+            
+            case MentorClientRequestStatus.contacted:
+                return '💬';
+            
+            case MentorClientRequestStatus.working:
+                return '📅';
+    
+            case MentorClientRequestStatus.done:
+                return '✅';
+
+            case MentorClientRequestStatus.reschedule:
+                return '🔄';
+
+            case MentorClientRequestStatus.declined:
+                return '❌';
+        
+            default:
+                return '🤷';
         }
     }
 }

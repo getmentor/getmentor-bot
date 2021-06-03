@@ -12,7 +12,7 @@ export async function onCode(ctx: MentorContext, code: string) {
     if ( re.test(code) ) {
         let mentor = await ctx.storage.getMentorBySecretCode(code);
         if (mentor) {
-            let new_mentor = await ctx.storage.setMentorTelegramChatId(mentor.airtable_id, ctx.message.chat.id);
+            let new_mentor = await ctx.storage.setMentorTelegramChatId(mentor.id, ctx.message.chat.id);
             if (new_mentor) {
                 ctx.replyWithHTML(stringsCode.welcome(new_mentor));
                 return;

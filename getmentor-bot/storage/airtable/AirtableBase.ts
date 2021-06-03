@@ -13,7 +13,8 @@ export class AirtableBase implements MentorStorage {
     airtable: Airtable;
     
     _mentorsCache: NodeCache;
-    _requestsCache: NodeCache;
+    _activeRequestsCache: NodeCache;
+    _archivedRequestsCache: NodeCache;
 
     private _allTags: Map<string, Tag>;
     
@@ -26,7 +27,8 @@ export class AirtableBase implements MentorStorage {
         this._allTags = undefined;
 
         this._mentorsCache = new NodeCache({ stdTTL: 600, checkperiod: 60 });
-        this._requestsCache = new NodeCache({ stdTTL: 600, checkperiod: 60 });
+        this._activeRequestsCache = new NodeCache({ stdTTL: 600, checkperiod: 60 });
+        this._archivedRequestsCache = new NodeCache({ stdTTL: 6000, checkperiod: 600 });
     }
 
     public async getMentorByTelegramId(chatId: number | string) : Promise<Mentor> {
@@ -60,15 +62,27 @@ export class AirtableBase implements MentorStorage {
         return this.updateMentorField(mentor, 'Tags Links', newTagIds);
     }
 
-    public async getMentorRequests(mentor: Mentor): Promise<Array<MentorClientRequest>> {
-        let requests = this._requestsCache.get(mentor.airtable_id) as MentorClientRequest[];
+    public async getMentorActiveRequests(mentor: Mentor): Promise<Array<MentorClientRequest>> {
+        return this.getMentorRequests(mentor, {
+            view: "Grid view",
+            filterByFormula: `AND({Mentor Id}='${mentor.id}',Status!='done',Status!='declined')`,
+            sort: [{field: "Created Time", direction: "asc"}]
+        }, this._activeRequestsCache);
+    }
+
+    public async getMentorArchivedRequests(mentor: Mentor): Promise<Array<MentorClientRequest>> {
+        return this.getMentorRequests(mentor, {
+            view: "Grid view",
+            filterByFormula: `AND({Mentor Id}='${mentor.id}',Status!='pending',Status!='working',Status!='contacted')`,
+            sort: [{field: "Created Time", direction: "asc"}]
+        }, this._archivedRequestsCache);
+    }
+
+    public async getMentorRequests(mentor: Mentor, options: any, cache: NodeCache): Promise<Array<MentorClientRequest>> {
+        let requests = cache.get(mentor.id) as MentorClientRequest[];
 
         if (!requests ) {
-            requests = await this.base.table('Client Requests').select({
-                    view: "Grid view",
-                    filterByFormula: `AND({Mentor Id}='${mentor.airtable_id}',Status!='done',Status!='declined')`,
-                    sort: [{field: "Last Modified Time", direction: "asc"}]
-            })
+            requests = await this.base.table('Client Requests').select(options)
             .firstPage()
             .then( records => {
                 let rs = new Array<MentorClientRequest>();
@@ -78,7 +92,7 @@ export class AirtableBase implements MentorStorage {
                  return rs;
             });
 
-            this._requestsCache.set(mentor.airtable_id, requests);
+            cache.set(mentor.id, requests);
         }
 
         return requests;
@@ -132,7 +146,7 @@ export class AirtableBase implements MentorStorage {
         let opts = {};
         opts[fieldName] = newValue;
 
-        return this.base.table('Mentors').update(mentor.airtable_id, opts)
+        return this.base.table('Mentors').update(mentor.id, opts)
         .then(record => {
             let newMentor = new Mentor(record);
             this._mentorsCache.set(newMentor.tg_chat_id, newMentor);
