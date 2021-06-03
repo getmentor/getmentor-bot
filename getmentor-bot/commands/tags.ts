@@ -14,12 +14,12 @@ export function makeTagsMenu(menu: MenuTemplate<MentorContext>) {
             let choices = new Map<string, string>();
             tags.forEach( (t) => choices.set(t.airtable_id, t.name) );
             return choices;
-        }, 
+        },
         {
             columns: 2,
-            getCurrentPage: _ => currentPage,
-            setPage: (_, page) => {
-                currentPage = page
+            getCurrentPage: ctx => ctx.session.tagsPage || 1,
+            setPage: (ctx, page) => {
+                ctx.session.tagsPage = page
             },
             isSet: async (ctx, key) => {
                 return ctx.mentor.tag_ids.includes(key);

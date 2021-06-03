@@ -1,6 +1,6 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions"
 import { MentorContext } from "./bot/MentorContext"
-import { Telegraf } from 'telegraf'
+import { Telegraf, session } from 'telegraf'
 import { onStart } from "./commands/start";
 import { commonMiddleware } from "./bot/commonMiddleware";
 import { onCode } from "./commands/code";
@@ -14,6 +14,7 @@ const airtable = new AirtableBase(process.env["AIRTABLE_API_KEY"], process.env['
 const bot = new Telegraf<MentorContext>(TELEGRAM_BOT_TOKEN, {telegram: { webhookReply: true }});
 bot.telegram.setWebhook(WEBHOOK_ADDRESS);
 
+bot.use(session())
 bot.use( (ctx, next) => commonMiddleware(airtable, ctx, next));
 
 bot.command('start', ctx => onStart(ctx))
