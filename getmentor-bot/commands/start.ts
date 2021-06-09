@@ -1,10 +1,11 @@
+import { menuMiddleware } from "../bot/general";
 import { MentorContext } from "../bot/MentorContext"
 import { stringsStart } from "../strings/start";
 import { onCode } from "./code";
 
 export async function onStart(ctx: MentorContext) {
     if (ctx.mentor) {
-        ctx.reply(`Hello ${ctx.mentor.name}.\nPlease use /menu command to navigate.`);
+        menuMiddleware.replyToContext(ctx);
         return;
     }
 

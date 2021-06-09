@@ -3,7 +3,7 @@ import { backButtons } from "../bot/general";
 import { MentorContext } from "../bot/MentorContext";
 import { requestButtonText, singleRequestSubmenu } from "./singleRequest";
 
-export function makeRequestsMenu(menu: MenuTemplate<MentorContext>) {
+export function makeRequestsMenu(): MenuTemplate<MentorContext> {
     const allRequestsMenu = new MenuTemplate<MentorContext>('Ваши заявки');
 
     const activeRequestsMenu = new MenuTemplate<MentorContext>('Ваши текушие заявки')
@@ -48,8 +48,5 @@ export function makeRequestsMenu(menu: MenuTemplate<MentorContext>) {
 
     allRequestsMenu.manualRow(backButtons);
 
-    menu.submenu(ctx => '👉 Ваши заявки',
-        'requests',
-        allRequestsMenu
-    )
+    return allRequestsMenu;
 }

@@ -1,4 +1,5 @@
 import {html as format} from 'telegram-format';
+import { Mentor } from '../models/Mentor';
 import { stringsCommon } from './common';
 
 export const stringsStart = {
@@ -15,9 +16,18 @@ ${format.url(stringsCommon.beMentorUrl, stringsCommon.beMentorUrl)}
 Спасибо!`
     },
 
+    welcomeMentor: (mentor: Mentor) => {
+        return `Привет ${mentor.name}. Для работы`
+    },
+
     denyInactiveMentors: () => {
         return `Наш бот доступен только активным менторам сервиса.
 
 Ваш профиль сейчас не подтвержден нашими модераторами. Если вы считаете, что это ошибка, или у вас есть какие-то вопросы, напишите нам на ${stringsCommon.contactEmail}`;
+    },
+
+    denyAnonymous: () => {
+        return `Наш бот доступен только активным менторам сервиса. Чтобы стать одним из них, зарегистрируйтесь по ссыке ниже:
+${stringsCommon.beMentorUrl}`;
     }
 };

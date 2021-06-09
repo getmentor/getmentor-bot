@@ -78,7 +78,7 @@ export class AirtableBase implements MentorStorage {
         }, this._archivedRequestsCache);
     }
 
-    public async getMentorRequests(mentor: Mentor, options: any, cache: NodeCache): Promise<Array<MentorClientRequest>> {
+    private async getMentorRequests(mentor: Mentor, options: any, cache: NodeCache): Promise<Array<MentorClientRequest>> {
         let requests = cache.get(mentor.id) as MentorClientRequest[];
 
         if (!requests ) {

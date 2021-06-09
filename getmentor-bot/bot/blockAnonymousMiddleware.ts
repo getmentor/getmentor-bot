@@ -12,5 +12,7 @@ export function blockAnonymousMiddleware(ctx: MentorContext, next) {
         } else {
             ctx.replyWithHTML(stringsStart.denyInactiveMentors());
         }
+    } else {
+        ctx.replyWithHTML(stringsStart.denyAnonymous());
     }
 };

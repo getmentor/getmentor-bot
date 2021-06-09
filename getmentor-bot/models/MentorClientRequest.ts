@@ -17,6 +17,7 @@ export class MentorClientRequest {
     createdAt: Date;
     modifiedAt: Date;
     statusChangedAt: Date;
+    scheduledAt: Date;
     review: string;
     status: MentorClientRequestStatus;
 
@@ -29,6 +30,7 @@ export class MentorClientRequest {
         this.status = record.get("Status") as MentorClientRequestStatus;
         this.createdAt = new Date(record.get("Created Time"));
         this.modifiedAt = new Date(record.get("Last Modified Time"));
+        this.scheduledAt = new Date(record.get("Scheduled At"));
         this.statusChangedAt = new Date(record.get("Last Status Change"));
     };
 };

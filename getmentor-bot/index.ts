@@ -1,4 +1,4 @@
-let appInsights = require('applicationinsights');
+import { appInsights } from "./utils/appInsights";
 appInsights.setup().start();
 
 import { AzureFunction, Context, HttpRequest } from "@azure/functions"
