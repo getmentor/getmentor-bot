@@ -4,7 +4,7 @@ import { MentorContext } from "../bot/MentorContext";
 export async function editProfile(ctx: MentorContext, additionalState: string) {
     if ('text' in ctx.message) {
         switch (additionalState) {
-            case 'edit_profile_description':
+            case 'p_desc':
                 ctx.mentor = await ctx.storage.setMentorDescription(ctx.mentor, ctx.message.text);
                 ctx.mentor.requests = await ctx.storage.getMentorActiveRequests(ctx.mentor);
 

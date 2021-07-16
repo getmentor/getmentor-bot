@@ -19,9 +19,9 @@ export function makeEditProfileMenu(): MenuTemplate<MentorContext> {
     makeTagsMenu(profileMenu);
 
     // Edit description
-    profileMenu.interact('Изменить описание', 'edit_profile_description', {
+    profileMenu.interact('Изменить описание', 'p_desc', {
         do: async (ctx, _) => {
-            await editProfileHandler.replyWithMarkdown(ctx, stringsProfile.editProfileDetails(), 'edit_profile_description');
+            await editProfileHandler.replyWithMarkdown(ctx, stringsProfile.editProfileDetails(), 'p_desc');
             return false;
         }
     });

@@ -49,6 +49,7 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
     try {
         await bot.handleUpdate(req.body);
     } catch (e) {
+        console.error(e);
         Sentry.captureException(e);
         await Sentry.flush(2000);
     } finally {

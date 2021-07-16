@@ -12,5 +12,11 @@ ${format.bold('Статус:')} ${MentorUtils.formatRequestStatus(request.status
 
 ${format.bold('Запрос:')}
 ${request.details}`
-    }
+    },
+
+    buttonContacted: '🕗 Связался с менти',
+    buttonScheduled: '📅 Встреча запланирована',
+    buttonDone: '✅ Встреча состоялась',
+    buttonDecline: '❌ Отклонить...',
+    buttonDeclineConfirm: '❌ Да! Отклонить.',
 }

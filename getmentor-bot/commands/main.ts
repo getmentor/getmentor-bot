@@ -11,7 +11,7 @@ export function mainMenu(): MenuTemplate<MentorContext> {
     let allRequestsMenu = makeRequestsMenu();
     menu.submenu(
         '👉 Ваши заявки',
-        'requests',
+        'r',
         allRequestsMenu
     )
 
@@ -22,7 +22,7 @@ export function mainMenu(): MenuTemplate<MentorContext> {
 
     // Edit profile
     let profileMenu = makeEditProfileMenu();
-    menu.submenu('📝 Редактировать профиль', 'editProfile', profileMenu);
+    menu.submenu('📝 Редактировать профиль', 'edit_p', profileMenu);
 
     // calendly
     //menu.switchToCurrentChat('📆 Calendly', 'calendly');

@@ -26,7 +26,7 @@ export class MentorClientRequest {
         this.id = record.id;
         this.name = record.get("Name");
         this.email = record.get("Email");
-        this.telegram = record.get("Telegram");
+        this.telegram = (record.get("Telegram") as string).replace('@','');
         this.details = record.get("Description");
         this.review = record.get("Review");
         this.status = record.get("Status") as MentorClientRequestStatus;

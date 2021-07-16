@@ -46,7 +46,6 @@ export class Mentor {
     tags: string;
     image: string;
     experience: MentorExperience;
-    remarks: string;
     calendar: string;
     requests: Array<MentorClientRequest>;
     archivedRequests: Array<MentorClientRequest>;
@@ -68,7 +67,6 @@ export class Mentor {
         this.tags = record.get("Tags");
         this.image = record.get("Image");
         this.experience = record.get("Experience") as MentorExperience;
-        this.remarks = record.get("Remarks");
         this.calendar = record.get("Calendly");
     };
 }

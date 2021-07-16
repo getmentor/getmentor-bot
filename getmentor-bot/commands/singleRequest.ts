@@ -12,17 +12,61 @@ export function singleRequestSubmenu(): MenuTemplate<MentorContext> {
         }
     })
 
-    singleRequestSubmenu.interact('test', 'randomButton', {
+    singleRequestSubmenu.interact(stringsSingleRequest.buttonContacted, 'contacted', {
         do: async ctx => {
             const id = ctx.match![1]!;
-            await ctx.answerCbQuery('Just a callback query answer')
+            await ctx.answerCbQuery('Just a callback query')
             return true;
-        }
+        },
+        hide: (ctx) => !ctx.mentor.requests || ctx.mentor.requests.length === 0
     });
+
+    singleRequestSubmenu.interact(stringsSingleRequest.buttonScheduled, 'scheduled', {
+        do: async ctx => {
+            const id = ctx.match![1]!;
+            await ctx.answerCbQuery('Just a callback query')
+            return true;
+        },
+        hide: (ctx) => !ctx.mentor.requests || ctx.mentor.requests.length === 0
+    });
+
+    singleRequestSubmenu.interact(stringsSingleRequest.buttonDone, 'done', {
+        do: async ctx => {
+            const id = ctx.match![1]!;
+            await ctx.answerCbQuery('Just a callback query')
+            return true;
+        },
+        hide: (ctx) => !ctx.mentor.requests || ctx.mentor.requests.length === 0
+    });
+
+    singleRequestSubmenu.submenu(
+        stringsSingleRequest.buttonDecline,
+        'confirm',
+        confirmDeclineRequestMenu(),
+        {
+            hide: (ctx) => !ctx.mentor.requests || ctx.mentor.requests.length === 0
+        }
+    );
 
     singleRequestSubmenu.manualRow(backButtons);
 
     return singleRequestSubmenu;
+}
+
+function confirmDeclineRequestMenu(): MenuTemplate<MentorContext> {
+    const confirmDeclineMenu = new MenuTemplate<MentorContext>('Вы уверены?');
+
+    confirmDeclineMenu.interact(stringsSingleRequest.buttonDeclineConfirm, 'yes', {
+        do: async ctx => {
+            const id = ctx.match![1]!;
+            await ctx.answerCbQuery('Just a callback query')
+            return true;
+        }
+    });
+
+    confirmDeclineMenu.manualRow(backButtons);
+
+    return confirmDeclineMenu;
 }
 
 export function requestButtonText(ctx: MentorContext, key: string): string {

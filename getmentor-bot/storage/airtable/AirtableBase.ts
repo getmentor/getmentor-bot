@@ -64,7 +64,6 @@ export class AirtableBase implements MentorStorage {
 
     public async getMentorActiveRequests(mentor: Mentor): Promise<Array<MentorClientRequest>> {
         return this.getMentorRequests(mentor, {
-            view: "Grid view",
             filterByFormula: `AND({Mentor Id}='${mentor.id}',Status!='done',Status!='declined')`,
             sort: [{field: "Created Time", direction: "asc"}]
         }, this._activeRequestsCache);
@@ -81,9 +80,23 @@ export class AirtableBase implements MentorStorage {
     private async getMentorRequests(mentor: Mentor, options: any, cache: NodeCache): Promise<Array<MentorClientRequest>> {
         let requests = cache.get(mentor.id) as MentorClientRequest[];
 
+        options.view = "Grid view";
+        options.fields = [
+            "Name",
+            "Email",
+            "Telegram",
+            "Description",
+            "Review",
+            "Status",
+            "Created Time",
+            "Last Modified Time",
+            "Scheduled At",
+            "Last Status Change"
+        ];
+
         if (!requests ) {
             requests = await this.base.table('Client Requests').select(options)
-            .firstPage()
+            .all()
             .then( records => {
                 let rs = new Array<MentorClientRequest>();
                 records.forEach(r => {
@@ -104,7 +117,7 @@ export class AirtableBase implements MentorStorage {
 
             await this.base.table('Tags').select({
                     view: "General"
-            }).firstPage().then(tags => {
+            }).all().then(tags => {
                 let tagObjects = tags.map( t => new Tag(t));
                 tagObjects.forEach(t => this._allTags.set(t.airtable_id, t));
             });
@@ -117,8 +130,26 @@ export class AirtableBase implements MentorStorage {
         return this.base.table('Mentors').select({
             maxRecords: 1,
             view: "Grid view",
+            fields: [
+                "Title",
+                "Email",
+                "Description",
+                "Details",
+                "Profile Url",
+                "Alias",
+                "TgSecret",
+                "Telegram",
+                "Telegram Chat Id",
+                "Price",
+                "Status",
+                "Tags Links",
+                "Tags",
+                "Image",
+                "Experience",
+                "Calendly Url",
+            ],
             filterByFormula: `${fieldName}='${fieldValue}'`
-        }).firstPage().then(records => {
+        }).all().then(records => {
             if (records.length === 0) return undefined;
             return new Mentor(records[0]);
         });
@@ -151,71 +182,6 @@ export class AirtableBase implements MentorStorage {
             let newMentor = new Mentor(record);
             this._mentorsCache.set(newMentor.tg_chat_id, newMentor);
             return newMentor;
-        }).then(async m => await this._recreateMentorProfilePage(m));
-    }
-
-    private async _recreateMentorProfilePage(mentor: Mentor): Promise<Mentor> {
-        if (!mentor) return;
-
-        return this.base.table('Content').select({
-            view: "Grid view",
-            filterByFormula: `Page='${mentor.alias}'`
-        }).firstPage().then(async records => {
-            if (records && records.length > 0) {
-                return this.base.table('Content').destroy(
-                    records.map(r => r.id)
-                )
-            }
-            return;
-        }).then(
-            async _ => {
-                let header = {
-                    "fields": {
-                        "Id": "header",
-                        "Type": 'Hero',
-                        "Text color": "#1A2238",
-                        "Background color": "#fcf8f2",
-                        "Title": mentor.name,
-                        "Text": stringsContent.headline(mentor),
-                        "Page": mentor.alias,
-                        "Content Type": "mentor"
-                    }
-                };
-
-                let body = {
-                    "fields": {
-                        "Id": "body",
-                        "Type": 'Image left, text right',
-                        "Text color": "#1A2238",
-                        "Background color": "#fcf8f2",
-                        "Text": stringsContent.description(mentor),
-                        "Options": stringsContent.descriptionOptions(mentor),
-                        "Page": mentor.alias,
-                        "Content Type": "mentor"
-                    }
-                };
-
-                let footer = {
-                    "fields": {
-                        "Id": "footer",
-                        "Type": "Footer",
-                        "Text color": "#1A2238",
-                        "Background color": "#fcf8f2",
-                        "Text": stringsContent.footer(),
-                        "Page": mentor.alias,
-                        "Content Type": "mentor"
-                    }
-                };
-
-                return this.base.table('Content').create([
-                    header,
-                    body,
-                    footer
-                ])
-        }).catch(
-            error => console.log(error)
-        ).then(
-            _ => mentor
-        )
+        });
     }
 }

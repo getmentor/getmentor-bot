@@ -21,7 +21,7 @@ export function makeRequestsMenu(): MenuTemplate<MentorContext> {
     activeRequestsMenu.manualRow(backButtons);
 
     allRequestsMenu.submenu(ctx => '👉 Активные заявки ('+ctx.mentor.requests.length+')',
-        'active_requests',
+        'r_act',
         activeRequestsMenu, {
             hide: (ctx) => !ctx.mentor.requests || ctx.mentor.requests.length === 0
         }
@@ -44,7 +44,7 @@ export function makeRequestsMenu(): MenuTemplate<MentorContext> {
     archivedRequestsMenu.manualRow(backButtons);
 
     allRequestsMenu.submenu(ctx => '🕗 Прошедшие заявки',
-        'archived_requests',
+        'r_arch',
         archivedRequestsMenu
     )
 
