@@ -18,7 +18,7 @@ export function singleRequestSubmenu(): MenuTemplate<MentorContext> {
             await ctx.answerCbQuery('Just a callback query')
             return true;
         },
-        hide: (ctx) => !ctx.mentor.requests || ctx.mentor.requests.length === 0
+        hide: ctx => isHidden(ctx)
     });
 
     singleRequestSubmenu.interact(stringsSingleRequest.buttonScheduled, 'scheduled', {
@@ -27,7 +27,7 @@ export function singleRequestSubmenu(): MenuTemplate<MentorContext> {
             await ctx.answerCbQuery('Just a callback query')
             return true;
         },
-        hide: (ctx) => !ctx.mentor.requests || ctx.mentor.requests.length === 0
+        hide: ctx => isHidden(ctx)
     });
 
     singleRequestSubmenu.interact(stringsSingleRequest.buttonDone, 'done', {
@@ -36,7 +36,7 @@ export function singleRequestSubmenu(): MenuTemplate<MentorContext> {
             await ctx.answerCbQuery('Just a callback query')
             return true;
         },
-        hide: (ctx) => !ctx.mentor.requests || ctx.mentor.requests.length === 0
+        hide: ctx => isHidden(ctx)
     });
 
     singleRequestSubmenu.submenu(
@@ -44,13 +44,23 @@ export function singleRequestSubmenu(): MenuTemplate<MentorContext> {
         'confirm',
         confirmDeclineRequestMenu(),
         {
-            hide: (ctx) => !ctx.mentor.requests || ctx.mentor.requests.length === 0
+            hide: ctx => isHidden(ctx)
         }
     );
 
     singleRequestSubmenu.manualRow(backButtons);
 
     return singleRequestSubmenu;
+}
+
+function isHidden(ctx: MentorContext): boolean {
+    const id = ctx.match![1]!;
+    if (ctx.mentor.requests && ctx.mentor.requests.length !== 0) {
+        let ids = ctx.mentor.requests.map( r => r.id);
+        return ids.includes(id) ? false : true;
+    }
+
+    return true;
 }
 
 function confirmDeclineRequestMenu(): MenuTemplate<MentorContext> {
