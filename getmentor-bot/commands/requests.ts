@@ -6,6 +6,7 @@ import { requestButtonText, singleRequestSubmenu } from "./singleRequest";
 export function makeRequestsMenu(): MenuTemplate<MentorContext> {
     const allRequestsMenu = new MenuTemplate<MentorContext>('Ваши заявки');
 
+    // Active requests
     const activeRequestsMenu = new MenuTemplate<MentorContext>('Ваши текушие заявки')
     activeRequestsMenu.chooseIntoSubmenu('request', 
         (ctx) => {
@@ -26,6 +27,7 @@ export function makeRequestsMenu(): MenuTemplate<MentorContext> {
         }
     )
 
+    // Past requests
     const archivedRequestsMenu = new MenuTemplate<MentorContext>('Прошедшие заявки')
     archivedRequestsMenu.chooseIntoSubmenu('request', 
         async (ctx) => {
@@ -41,7 +43,7 @@ export function makeRequestsMenu(): MenuTemplate<MentorContext> {
     );
     archivedRequestsMenu.manualRow(backButtons);
 
-    allRequestsMenu.submenu(ctx => 'Прошедшие заявки',
+    allRequestsMenu.submenu(ctx => '🕗 Прошедшие заявки',
         'archived_requests',
         archivedRequestsMenu
     )

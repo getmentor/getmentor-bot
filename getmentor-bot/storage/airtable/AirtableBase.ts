@@ -74,7 +74,7 @@ export class AirtableBase implements MentorStorage {
         return this.getMentorRequests(mentor, {
             view: "Grid view",
             filterByFormula: `AND({Mentor Id}='${mentor.id}',Status!='pending',Status!='working',Status!='contacted')`,
-            sort: [{field: "Created Time", direction: "asc"}]
+            sort: [{field: "Last Modified Time", direction: "desc"}]
         }, this._archivedRequestsCache);
     }
 

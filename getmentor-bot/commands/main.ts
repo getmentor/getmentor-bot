@@ -25,7 +25,7 @@ export function mainMenu(): MenuTemplate<MentorContext> {
     menu.submenu('📝 Редактировать профиль', 'editProfile', profileMenu);
 
     // calendly
-    menu.switchToCurrentChat('📆 Calendly', 'calendly');
+    //menu.switchToCurrentChat('📆 Calendly', 'calendly');
 
     return menu;
 }

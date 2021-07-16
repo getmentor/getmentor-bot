@@ -1,10 +1,16 @@
 import { MenuTemplate } from "telegraf-inline-menu";
 import { backButtons } from "../bot/general";
 import { MentorContext } from "../bot/MentorContext";
+import { stringsSingleRequest } from "../strings/singleRequest";
 import { MentorUtils } from "../utils/MentorUtils";
 
 export function singleRequestSubmenu(): MenuTemplate<MentorContext> {
-    const singleRequestSubmenu = new MenuTemplate<MentorContext>(singleRequestText)
+    const singleRequestSubmenu = new MenuTemplate<MentorContext>(ctx => {
+        return {
+            text: singleRequestText(ctx),
+            parse_mode: "HTML"
+        }
+    })
 
     singleRequestSubmenu.interact('test', 'randomButton', {
         do: async ctx => {
@@ -39,5 +45,5 @@ function singleRequestText(ctx: MentorContext): string {
     if (!request) {
         request = ctx.mentor.archivedRequests.find(r => r.id === id);
     }
-    return request ? request.name : 'unknown';
+    return request ? stringsSingleRequest.requestDetails(request) : 'unknown';
 }
