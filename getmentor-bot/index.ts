@@ -1,4 +1,10 @@
 import { appInsights } from "./utils/appInsights";
+const Sentry = require("@sentry/node");
+
+Sentry.init({
+    dsn: process.env["SENTRY_CLIENT_KEY"],
+});
+
 appInsights.setup().start();
 
 import { AzureFunction, Context, HttpRequest } from "@azure/functions"
@@ -42,6 +48,9 @@ process.once('SIGTERM', () => bot.stop('SIGTERM'));
 const httpTrigger: AzureFunction = async function (context: Context, req: HttpRequest): Promise<void> {
     try {
         await bot.handleUpdate(req.body);
+    } catch (e) {
+        Sentry.captureException(e);
+        await Sentry.flush(2000);
     } finally {
         context.res = {
             status: 200

@@ -10,6 +10,7 @@
     "test": "echo \"No tests yet...\""
   },
   "dependencies": {
+    "@sentry/node": "^6.9.0",
     "airtable": "^0.10.1",
     "applicationinsights": "^2.1.0",
     "node-cache": "^5.1.2",
