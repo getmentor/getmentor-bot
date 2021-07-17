@@ -10,7 +10,7 @@ export function makeRequestsMenu(): MenuTemplate<MentorContext> {
     const activeRequestsMenu = new MenuTemplate<MentorContext>('Ваши текушие заявки')
     activeRequestsMenu.chooseIntoSubmenu('request', 
         (ctx) => {
-            return ctx.mentor.requests.map((r) => r.id)
+            return Array.from(ctx.mentor.requests.keys())
         },
         singleRequestSubmenu(),
         {
@@ -20,10 +20,10 @@ export function makeRequestsMenu(): MenuTemplate<MentorContext> {
     );
     activeRequestsMenu.manualRow(backButtons);
 
-    allRequestsMenu.submenu(ctx => '👉 Активные заявки ('+ctx.mentor.requests.length+')',
+    allRequestsMenu.submenu(ctx => '👉 Активные заявки ('+ctx.mentor.requests.size+')',
         'r_act',
         activeRequestsMenu, {
-            hide: (ctx) => !ctx.mentor.requests || ctx.mentor.requests.length === 0
+            hide: (ctx) => !ctx.mentor.requests || ctx.mentor.requests.size === 0
         }
     )
 
@@ -32,8 +32,7 @@ export function makeRequestsMenu(): MenuTemplate<MentorContext> {
     archivedRequestsMenu.chooseIntoSubmenu('request', 
         async (ctx) => {
             ctx.mentor.archivedRequests = await ctx.storage.getMentorArchivedRequests(ctx.mentor);
-
-            return ctx.mentor.archivedRequests.map((r) => r.id)
+            return Array.from(ctx.mentor.archivedRequests.keys())
         },
         singleRequestSubmenu(),
         {

@@ -47,8 +47,8 @@ export class Mentor {
     image: string;
     experience: MentorExperience;
     calendar: string;
-    requests: Array<MentorClientRequest>;
-    archivedRequests: Array<MentorClientRequest>;
+    requests: Map<string, MentorClientRequest>;
+    archivedRequests: Map<string, MentorClientRequest>;
 
     constructor(record: MentorStorageRecord) {
         this.id = record.id;

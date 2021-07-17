@@ -21,6 +21,7 @@ export class MentorClientRequest {
     scheduledAt: Date;
     review: string;
     status: MentorClientRequestStatus;
+    mentorId: string;
 
     constructor(record: MentorStorageRecord) {
         this.id = record.id;
@@ -34,5 +35,6 @@ export class MentorClientRequest {
         this.modifiedAt = new Date(record.get("Last Modified Time"));
         this.scheduledAt = new Date(record.get("Scheduled At"));
         this.statusChangedAt = new Date(record.get("Last Status Change"));
+        this.mentorId = record.get("Mentor")[0];
     };
 };
