@@ -7,6 +7,7 @@ import { MentorUtils } from "../../utils/MentorUtils";
 import { SendGridEmailSender } from "../../sendgrid/SendGridEmailSender"
 import { SessionCompleteMessage } from "../../sendgrid/messages/SessionCompleteMessage";
 import { SessionDeclinedMessage } from "../../sendgrid/messages/SessionDeclinedMessage";
+import { mixpanel } from "../../utils/mixpanel";
 
 export function singleRequestSubmenu(): MenuTemplate<MentorContext> {
     const singleRequestSubmenu = new MenuTemplate<MentorContext>(ctx => {
@@ -77,6 +78,15 @@ async function setNewStatus(ctx: MentorContext, newStatus: MentorClientRequestSt
         //await ctx.reply('Статус обновлен, спасибо!');
         await ctx.answerCbQuery('Статус обновлен, спасибо!');
         menuMiddleware.replyToContext(ctx, '/r/');
+
+        mixpanel.track('request_status_change', {
+            distinct_id: ctx.chat.id,
+            mentor_id: ctx.mentor.id,
+            mentor_name: ctx.mentor.name,
+            request_id: newRequest.id,
+            request_name: newRequest.name,
+            status: newRequest.status.toString()
+        })
     } else {
         await ctx.answerCbQuery('Что-то пошло не так! Попробуйте позже.')
     }

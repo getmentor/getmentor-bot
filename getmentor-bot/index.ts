@@ -12,6 +12,7 @@ import { onCode } from "./commands/code";
 import { blockAnonymousMiddleware } from "./bot/blockAnonymousMiddleware";
 import { AirtableBase } from "./storage/airtable/AirtableBase";
 import { editProfileHandler, menuMiddleware } from "./bot/general";
+import { mixpanel } from "./utils/mixpanel";
 
 const { TELEGRAM_BOT_TOKEN, WEBHOOK_ADDRESS } = process.env;
 const airtable = new AirtableBase(process.env["AIRTABLE_API_KEY"], process.env['AIRTABLE_BASE_ID']);
@@ -28,14 +29,41 @@ bot.hears(/^[0-9a-zA-Z]{8}$/i, ctx => onCode(ctx, ctx.message.text));
 bot.use(blockAnonymousMiddleware);
 bot.use(editProfileHandler.middleware());
 
-bot.command('menu', ctx => menuMiddleware.replyToContext(ctx))
-bot.command('requests', ctx => menuMiddleware.replyToContext(ctx, "/r/"))
-bot.command('profile', ctx => menuMiddleware.replyToContext(ctx, "/edit_p/"))
+bot.command('menu', ctx => {
+    mixpanel.track('on_menu_command', {
+        distinct_id: ctx.chat.id,
+        mentor_id: ctx.mentor?.id,
+        mentor_name: ctx.mentor?.name
+    })
+    menuMiddleware.replyToContext(ctx)
+})
+bot.command('requests', ctx => {
+    mixpanel.track('on_menu_requests', {
+        distinct_id: ctx.chat.id,
+        mentor_id: ctx.mentor?.id,
+        mentor_name: ctx.mentor?.name
+    })
+    menuMiddleware.replyToContext(ctx, "/r/")
+})
+bot.command('profile', ctx => {
+    mixpanel.track('on_menu_profile', {
+        distinct_id: ctx.chat.id,
+        mentor_id: ctx.mentor?.id,
+        mentor_name: ctx.mentor?.name
+    })
+    menuMiddleware.replyToContext(ctx, "/edit_p/")
+})
 
 bot.use(menuMiddleware);
 
 bot.catch( (error, ctx) => {
     console.error(error);
+    mixpanel.track('on_bot_error', {
+        distinct_id: ctx.chat.id,
+        mentor_id: ctx.mentor?.id,
+        mentor_name: ctx.mentor?.name,
+        error: error
+    })
     ctx.reply('Произошла ошибка, простите')
 })
 

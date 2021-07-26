@@ -1,6 +1,7 @@
 import { MentorContext } from "../../bot/MentorContext";
 import { MentorStatus } from "../../models/Mentor";
 import { MentorUtils } from "../../utils/MentorUtils";
+import { mixpanel } from "../../utils/mixpanel";
 
 export function getStatusCaption(ctx: MentorContext): string {
     return 'Статус: ' + MentorUtils.formatStatus(ctx.mentor.status);
@@ -11,7 +12,13 @@ export async function setStatus(ctx: MentorContext, newState: boolean): Promise<
         ctx.mentor,
         newState ? MentorStatus.active : MentorStatus.inactive
     );
-    ctx.mentor.requests = await ctx.storage.getMentorActiveRequests(ctx.mentor);
+
+    mixpanel.track('profile_edit_status', {
+        distinct_id: ctx.chat.id,
+        mentor_id: ctx.mentor.id,
+        mentor_name: ctx.mentor.name,
+        status: newState
+    })
 
     return true
 }

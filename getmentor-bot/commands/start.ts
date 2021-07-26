@@ -1,6 +1,7 @@
 import { menuMiddleware } from "../bot/general";
 import { MentorContext } from "../bot/MentorContext"
 import { stringsStart } from "../strings/start";
+import { mixpanel } from "../utils/mixpanel";
 import { onCode } from "./code";
 
 export async function onStart(ctx: MentorContext) {
@@ -17,4 +18,8 @@ export async function onStart(ctx: MentorContext) {
     } else {
         ctx.replyWithHTML(stringsStart.welcomeAnonymous());
     }
+
+    mixpanel.track('start', {
+        distinct_id: ctx.chat.id,
+    })
 }

@@ -1,4 +1,5 @@
 import { MentorStorage } from "../storage/MentorStorage";
+import { mixpanel } from "../utils/mixpanel";
 import { MentorContext } from "./MentorContext";
 
 export async function commonMiddleware(storage: MentorStorage, ctx: MentorContext, next) {

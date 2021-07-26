@@ -1,5 +1,6 @@
 import { MentorContext } from "../bot/MentorContext"
 import { stringsCode } from "../strings/code";
+import { mixpanel } from "../utils/mixpanel";
 
 export async function onCode(ctx: MentorContext, code: string) {
     if (ctx.mentor) {
@@ -15,10 +16,22 @@ export async function onCode(ctx: MentorContext, code: string) {
             let new_mentor = await ctx.storage.setMentorTelegramChatId(mentor.id, ctx.message.chat.id);
             if (new_mentor) {
                 ctx.replyWithHTML(stringsCode.welcome(new_mentor));
+
+                mixpanel.track('tg_secret_code_accepted', {
+                    distinct_id: ctx.chat.id,
+                    mentor_id: new_mentor.id,
+                    mentor_name: new_mentor.name,
+                    code: code
+                })
                 return;
             }
         }
     }
+
+    mixpanel.track('tg_secret_code_declined', {
+        distinct_id: ctx.chat.id,
+        code: code
+    })
 
     ctx.reply(stringsCode.unknown());
 }

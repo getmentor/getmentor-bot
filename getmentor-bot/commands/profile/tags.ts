@@ -1,6 +1,8 @@
 import { MenuTemplate } from "telegraf-inline-menu";
 import { backButtons } from "../../bot/general";
 import { MentorContext } from "../../bot/MentorContext";
+import { mixpanel } from "../../utils/mixpanel";
+import { makePriceMenu } from "./price";
 
 export function makeTagsMenu(menu: MenuTemplate<MentorContext>) {
     const tagsMenu = new MenuTemplate<MentorContext>('💭 Ваши текущие тэги')
@@ -33,7 +35,16 @@ export function makeTagsMenu(menu: MenuTemplate<MentorContext>) {
                 }
 
                 ctx.mentor = await ctx.storage.setMentorTags(ctx.mentor, ctx.mentor.tag_ids)
-                ctx.mentor.requests = await ctx.storage.getMentorActiveRequests(ctx.mentor);
+
+                let tags = await ctx.storage.getAllTags();
+                let selectedTag = tags.get(key);
+
+                mixpanel.track('profile_edit_tags', {
+                    distinct_id: ctx.chat.id,
+                    mentor_id: ctx.mentor.id,
+                    mentor_name: ctx.mentor.name,
+                    tag: selectedTag.name
+                })
                 return true
             }
         }

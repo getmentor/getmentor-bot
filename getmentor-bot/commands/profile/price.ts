@@ -2,6 +2,7 @@ import { MenuTemplate } from "telegraf-inline-menu";
 import { backButtons } from "../../bot/general";
 import { MentorContext } from "../../bot/MentorContext";
 import { Mentor, MentorPrice } from "../../models/Mentor";
+import { mixpanel } from "../../utils/mixpanel";
 
 export function makePriceMenu(menu: MenuTemplate<MentorContext>) {
     const priceMenu = new MenuTemplate<MentorContext>('💰 Стоимость ваших услуг')
@@ -33,6 +34,13 @@ export function makePriceMenu(menu: MenuTemplate<MentorContext>) {
                 let price = key as MentorPrice;
                 if (newState) {
                     ctx.mentor = await ctx.storage.setMentorPrice(ctx.mentor, price)
+
+                    mixpanel.track('profile_edit_price', {
+                        distinct_id: ctx.chat.id,
+                        mentor_id: ctx.mentor.id,
+                        mentor_name: ctx.mentor.name,
+                        price: price.toString()
+                    })
                 }
                 return true
             }
