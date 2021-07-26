@@ -1,9 +1,5 @@
 import { appInsights } from "./utils/appInsights";
-const Sentry = require("@sentry/node");
-
-Sentry.init({
-    dsn: process.env["SENTRY_CLIENT_KEY"],
-});
+import { Sentry } from "./utils/sentry";
 
 appInsights.setup().start();
 
@@ -33,6 +29,8 @@ bot.use(blockAnonymousMiddleware);
 bot.use(editProfileHandler.middleware());
 
 bot.command('menu', ctx => menuMiddleware.replyToContext(ctx))
+bot.command('requests', ctx => menuMiddleware.replyToContext(ctx, "/r/"))
+bot.command('profile', ctx => menuMiddleware.replyToContext(ctx, "/edit_p/"))
 
 bot.use(menuMiddleware);
 

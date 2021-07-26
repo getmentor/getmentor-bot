@@ -1,6 +1,6 @@
-import { MentorContext } from "../bot/MentorContext";
-import { MentorStatus } from "../models/Mentor";
-import { MentorUtils } from "../utils/MentorUtils";
+import { MentorContext } from "../../bot/MentorContext";
+import { MentorStatus } from "../../models/Mentor";
+import { MentorUtils } from "../../utils/MentorUtils";
 
 export function getStatusCaption(ctx: MentorContext): string {
     return 'Статус: ' + MentorUtils.formatStatus(ctx.mentor.status);

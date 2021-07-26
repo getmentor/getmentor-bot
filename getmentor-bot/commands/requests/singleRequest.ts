@@ -1,9 +1,12 @@
 import { MenuTemplate } from "telegraf-inline-menu";
-import { backButtons } from "../bot/general";
-import { MentorContext } from "../bot/MentorContext";
-import { MentorClientRequestStatus } from "../models/MentorClientRequest";
-import { stringsSingleRequest } from "../strings/singleRequest";
-import { MentorUtils } from "../utils/MentorUtils";
+import { backButtons, menuMiddleware } from "../../bot/general";
+import { MentorContext } from "../../bot/MentorContext";
+import { MentorClientRequestStatus } from "../../models/MentorClientRequest";
+import { stringsSingleRequest } from "../../strings/singleRequest";
+import { MentorUtils } from "../../utils/MentorUtils";
+import { SendGridEmailSender } from "../../sendgrid/SendGridEmailSender"
+import { SessionCompleteMessage } from "../../sendgrid/messages/SessionCompleteMessage";
+import { SessionDeclinedMessage } from "../../sendgrid/messages/SessionDeclinedMessage";
 
 export function singleRequestSubmenu(): MenuTemplate<MentorContext> {
     const singleRequestSubmenu = new MenuTemplate<MentorContext>(ctx => {
@@ -62,8 +65,20 @@ async function setNewStatus(ctx: MentorContext, newStatus: MentorClientRequestSt
             ctx.mentor.requests.delete(newRequest.id);
             ctx.mentor.archivedRequests?.set(newRequest.id, newRequest);
         }
+        if (newRequest.status === MentorClientRequestStatus.done) {
+            SendGridEmailSender.send(new SessionCompleteMessage(ctx.mentor, newRequest));
+            await ctx.replyWithHTML(stringsSingleRequest.requestCompletedByMentor(ctx.mentor, newRequest))
+        }
+        if (newRequest.status === MentorClientRequestStatus.declined) {
+            SendGridEmailSender.send(new SessionDeclinedMessage(ctx.mentor, newRequest));
+            await ctx.replyWithHTML(stringsSingleRequest.requestDeclinedByMentor)
+        }
 
-        await ctx.answerCbQuery('Статус обновлен, спасибо!')
+        //await ctx.reply('Статус обновлен, спасибо!');
+        await ctx.answerCbQuery('Статус обновлен, спасибо!');
+        menuMiddleware.replyToContext(ctx, '/r/');
+    } else {
+        await ctx.answerCbQuery('Что-то пошло не так! Попробуйте позже.')
     }
 }
 

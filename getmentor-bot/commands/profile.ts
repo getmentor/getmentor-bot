@@ -2,8 +2,9 @@ import { MenuTemplate } from "telegraf-inline-menu";
 import { backButtons, editProfileHandler } from "../bot/general";
 import { MentorContext } from "../bot/MentorContext";
 import { stringsProfile } from "../strings/profile";
-import { getStatusCaption, isStatusSet, setStatus } from "./status";
-import { makeTagsMenu } from "./tags";
+import { makePriceMenu } from "./profile/price";
+import { getStatusCaption, isStatusSet, setStatus } from "./profile/status";
+import { makeTagsMenu } from "./profile/tags";
 
 export function makeEditProfileMenu(): MenuTemplate<MentorContext> {
     const profileMenu = new MenuTemplate<MentorContext>('Редактировать профиль');
@@ -18,8 +19,11 @@ export function makeEditProfileMenu(): MenuTemplate<MentorContext> {
     // Tags
     makeTagsMenu(profileMenu);
 
+    // Price
+    makePriceMenu(profileMenu);
+
     // Edit description
-    profileMenu.interact('Изменить описание', 'p_desc', {
+    profileMenu.interact('📝 Изменить описание', 'p_desc', {
         do: async (ctx, _) => {
             await editProfileHandler.replyWithMarkdown(ctx, stringsProfile.editProfileDetails(), 'p_desc');
             return false;

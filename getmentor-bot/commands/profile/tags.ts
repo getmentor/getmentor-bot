@@ -1,11 +1,9 @@
 import { MenuTemplate } from "telegraf-inline-menu";
-import { backButtons } from "../bot/general";
-import { MentorContext } from "../bot/MentorContext";
+import { backButtons } from "../../bot/general";
+import { MentorContext } from "../../bot/MentorContext";
 
 export function makeTagsMenu(menu: MenuTemplate<MentorContext>) {
-    const tagsMenu = new MenuTemplate<MentorContext>('Ваши текущие тэги')
-
-    let currentPage = 1;
+    const tagsMenu = new MenuTemplate<MentorContext>('💭 Ваши текущие тэги')
 
     tagsMenu.select(
         'tag', 
@@ -43,5 +41,5 @@ export function makeTagsMenu(menu: MenuTemplate<MentorContext>) {
 
     tagsMenu.manualRow(backButtons);
 
-    menu.submenu('Редактировать тэги', 'tags', tagsMenu);
+    menu.submenu('💭 Редактировать тэги', 'tags', tagsMenu);
 }

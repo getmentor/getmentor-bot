@@ -1,6 +1,6 @@
 import {createBackMainMenuButtons, MenuMiddleware} from 'telegraf-inline-menu';
 import TelegrafStatelessQuestion from 'telegraf-stateless-question';
-import { editProfile } from '../commands/editProfile';
+import { editProfile } from '../commands/profile/editProfile';
 import { mainMenu } from '../commands/main';
 import { MentorContext } from './MentorContext';
 

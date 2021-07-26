@@ -8,8 +8,8 @@ export function mainMenu(): MenuTemplate<MentorContext> {
     const menu = new MenuTemplate<MentorContext>(ctx => stringsMain.welcomeMentor(ctx.mentor));
 
     // Requests
-    let allRequestsMenu = makeRequestsMenu();
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.TOGGLE_REQUESTS_MENU) {
+        let allRequestsMenu = makeRequestsMenu();
         menu.submenu(
             '👉 Ваши заявки',
             'r',

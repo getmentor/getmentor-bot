@@ -1,7 +1,7 @@
 import { MenuTemplate } from "telegraf-inline-menu";
 import { backButtons } from "../bot/general";
 import { MentorContext } from "../bot/MentorContext";
-import { requestButtonText, singleRequestSubmenu } from "./singleRequest";
+import { requestButtonText, singleRequestSubmenu } from "./requests/singleRequest";
 
 export function makeRequestsMenu(): MenuTemplate<MentorContext> {
     const allRequestsMenu = new MenuTemplate<MentorContext>('Ваши заявки');

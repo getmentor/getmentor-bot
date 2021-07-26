@@ -1,5 +1,5 @@
-import { menuMiddleware } from "../bot/general";
-import { MentorContext } from "../bot/MentorContext";
+import { menuMiddleware } from "../../bot/general";
+import { MentorContext } from "../../bot/MentorContext";
 
 export async function editProfile(ctx: MentorContext, additionalState: string) {
     if ('text' in ctx.message) {

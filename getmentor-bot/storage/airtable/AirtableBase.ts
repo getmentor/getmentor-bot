@@ -1,4 +1,4 @@
-import { Mentor, MentorStatus } from "../../models/Mentor";
+import { Mentor, MentorPrice, MentorStatus } from "../../models/Mentor";
 
 import Airtable from "airtable";
 import Base from "airtable/lib/base";
@@ -165,6 +165,11 @@ export class AirtableBase implements MentorStorage {
             this._mentorsCache.set(chatId, mentor);
             return mentor;
         });
+    }
+
+    public async setMentorPrice(mentor: Mentor, price: MentorPrice): Promise<Mentor> {
+        if (!mentor) return;
+        return this.updateMentorField(mentor, 'Price', price.toString());
     }
 
     public async setMentorDescription(mentor: Mentor, newDescription: string): Promise<Mentor> {
