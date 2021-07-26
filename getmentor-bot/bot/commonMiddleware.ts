@@ -10,7 +10,7 @@ export async function commonMiddleware(storage: MentorStorage, ctx: MentorContex
     if ( ctx.mentor && !ctx.mentor.requests ) {
         ctx.mentor.requests = await storage.getMentorActiveRequests(ctx.mentor);
     }
-    ctx.session ??= { tagsPage: 1 };
+    ctx.session ??= { tagsPage: 1, activeRequestsPage: 1, oldRequestsPage: 1 };
 
     return next();
 };

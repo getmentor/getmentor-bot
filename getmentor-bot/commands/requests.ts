@@ -15,7 +15,11 @@ export function makeRequestsMenu(): MenuTemplate<MentorContext> {
         singleRequestSubmenu(),
         {
             buttonText: requestButtonText,
-            columns: 1
+            columns: 1,
+            getCurrentPage: ctx => ctx.session.activeRequestsPage || 1,
+            setPage: (ctx, page) => {
+                ctx.session.activeRequestsPage = page
+            },
         }
     );
     activeRequestsMenu.manualRow(backButtons);
@@ -37,7 +41,11 @@ export function makeRequestsMenu(): MenuTemplate<MentorContext> {
         singleRequestSubmenu(),
         {
             buttonText: requestButtonText,
-            columns: 1
+            columns: 1,
+            getCurrentPage: ctx => ctx.session.oldRequestsPage || 1,
+            setPage: (ctx, page) => {
+                ctx.session.oldRequestsPage = page
+            },
         }
     );
     archivedRequestsMenu.manualRow(backButtons);

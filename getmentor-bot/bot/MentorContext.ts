@@ -4,6 +4,8 @@ import { MentorStorage } from '../storage/MentorStorage';
 
 interface MentorSession {
     tagsPage: number;
+    activeRequestsPage: number;
+    oldRequestsPage: number;
 }
 
 export interface MentorContext extends TgContext {
