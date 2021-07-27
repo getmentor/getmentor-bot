@@ -179,6 +179,12 @@ export class AirtableBase implements MentorStorage {
         return this.updateMentorField(mentor, 'Details', newDescription);
     }
 
+    public async setMentorTitle(mentor: Mentor, newDescription: string): Promise<Mentor> {
+        if (!mentor) return;
+
+        return this.updateMentorField(mentor, 'Description', newDescription);
+    }
+
     public async setRequestStatus(request: MentorClientRequest, newStatus: MentorClientRequestStatus): Promise<MentorClientRequest> {
         if (!request) return;
         if (request.status === MentorClientRequestStatus.done || request.status === MentorClientRequestStatus.declined) {

@@ -20,4 +20,5 @@ export interface MentorStorage {
     getAllTags(): Promise<Map<string, Tag>>;
     setMentorTelegramChatId(mentorId: string, chatId: number): Promise<Mentor>;
     setMentorDescription(mentor: Mentor, newDescription: string): Promise<Mentor>;
+    setMentorTitle(mentor: Mentor, newTitle: string): Promise<Mentor>;
 }

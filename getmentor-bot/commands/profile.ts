@@ -23,6 +23,14 @@ export function makeEditProfileMenu(): MenuTemplate<MentorContext> {
     makePriceMenu(profileMenu);
 
     // Edit description
+    profileMenu.interact('📝 Изменить должность', 'p_title', {
+        do: async (ctx, _) => {
+            await editProfileHandler.replyWithMarkdown(ctx, stringsProfile.editTitle(ctx.mentor), 'p_title');
+            return false;
+        }
+    });
+
+    // Edit description
     profileMenu.interact('📝 Изменить описание', 'p_desc', {
         do: async (ctx, _) => {
             await editProfileHandler.replyWithMarkdown(ctx, stringsProfile.editProfileDetails(), 'p_desc');

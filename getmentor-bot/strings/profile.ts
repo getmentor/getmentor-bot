@@ -10,5 +10,13 @@ ${format.monospaceBlock(format.escape(mentor.details))}`
 
     editProfileDetails: () => {
         return "Введите новый текст для описания профиля. Можно использовать базовый HTML для форматирования";
+    },
+
+    editTitle: (mentor: Mentor) => {
+        return `Текущая должность:
+
+${mentor.description}
+
+Введите новую информацию в формате 'Должность @ Компания'`;
     }
 }
