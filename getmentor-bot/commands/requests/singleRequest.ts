@@ -50,6 +50,18 @@ export function singleRequestSubmenu(): MenuTemplate<MentorContext> {
         }
     );
 
+    singleRequestSubmenu.submenu(
+        stringsSingleRequest.buttonViewReview,
+        'review',
+        reviewSubmenu(),
+        {
+            hide: ctx => {
+                const id = ctx.match![1]!;
+                return ctx.mentor.archivedRequests?.get(id)?.review ? false : true;
+            }
+        }
+    );
+
     singleRequestSubmenu.manualRow(backButtons);
 
     return singleRequestSubmenu;
@@ -112,6 +124,26 @@ function confirmDeclineRequestMenu(): MenuTemplate<MentorContext> {
     return confirmDeclineMenu;
 }
 
+function reviewSubmenu(): MenuTemplate<MentorContext> {
+    const confirmDeclineMenu = new MenuTemplate<MentorContext>(ctx => {
+        const id = ctx.match![1]!;
+        let request = ctx.mentor.archivedRequests?.get(id);
+        if (request && request.review) {
+            return `${request.name} оставил следующий отзыв о вашей встрече:
+
+-----
+${request.review}
+-----
+
+Надеемся, что он поможет вам стать лучше. Удачи!`
+        } else 'Отзыва нет';
+    });
+
+    confirmDeclineMenu.manualRow(backButtons);
+
+    return confirmDeclineMenu;
+}
+
 export function requestButtonText(ctx: MentorContext, key: string): string {
     let request = ctx.mentor.requests.get(key);
     if (!request) {
@@ -122,8 +154,9 @@ export function requestButtonText(ctx: MentorContext, key: string): string {
 
     return MentorUtils.formatRequestStatusPrefix(request.status)
         + ` ${request.name} (`
-        + request.createdAt.toLocaleString('ru-RU', { timeZone: 'Europe/Moscow' })
-        + ')';
+        + request.createdAt.toLocaleDateString('ru-RU', { timeZone: 'Europe/Moscow' })
+        + ')'
+        + (request.review ? ' + отзыв' : '');
 }
 
 function singleRequestText(ctx: MentorContext): string {

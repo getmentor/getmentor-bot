@@ -20,6 +20,7 @@ ${request.details}`
     buttonDone: '✅ Встреча состоялась',
     buttonDecline: '❌ Отклонить...',
     buttonDeclineConfirm: '❌ Да! Отклонить.',
+    buttonViewReview: '✍️ Посмотреть отзыв',
 
     requestCompletedByMentor: (mentor: Mentor, request: MentorClientRequest) => {
         let donateText;
