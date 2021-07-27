@@ -137,6 +137,14 @@ ${request.review}
 
 Надеемся, что он поможет вам стать лучше. Удачи!`
         } else 'Отзыва нет';
+
+        mixpanel.track('request_view_review', {
+            distinct_id: ctx.chat.id,
+            mentor_id: ctx.mentor.id,
+            mentor_name: ctx.mentor.name,
+            request_id: request.id,
+            request_name: request.name
+        })
     });
 
     confirmDeclineMenu.manualRow(backButtons);
