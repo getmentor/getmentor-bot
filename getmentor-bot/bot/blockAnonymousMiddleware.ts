@@ -1,5 +1,6 @@
 import { MentorStatus } from "../models/Mentor";
 import { stringsStart } from "../strings/start";
+import { mixpanel } from "../utils/mixpanel";
 import { MentorContext } from "./MentorContext";
 
 export function blockAnonymousMiddleware(ctx: MentorContext, next) {
@@ -14,5 +15,9 @@ export function blockAnonymousMiddleware(ctx: MentorContext, next) {
         }
     } else {
         ctx.replyWithHTML(stringsStart.denyAnonymous());
+
+        mixpanel.track('anonymous_bot_access', {
+            distinct_id: ctx.chat.id,
+        })
     }
 };

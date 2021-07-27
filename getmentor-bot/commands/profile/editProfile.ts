@@ -6,11 +6,17 @@ export async function editProfile(ctx: MentorContext, additionalState: string) {
     if ('text' in ctx.message) {
         switch (additionalState) {
             case 'p_desc':
-                ctx.mentor = await ctx.storage.setMentorDescription(ctx.mentor, ctx.message.text);
+                let newMentor = await ctx.storage.setMentorDescription(ctx.mentor, ctx.message.text);
+                let failed = ''
+                if (newMentor) {
+                    ctx.mentor = newMentor
+                    await ctx.reply(`Все сделано! На сайте описание может обновиться не сразу, дайте роботам время :)`);
+                } else {
+                    await ctx.reply(`Что-то пошло не так, попробуйте повторить позже`);
+                    failed = '_failed'
+                }
 
-                await ctx.reply(`Все сделано! На сайте описание может обновиться не сразу, дайте роботам время :)`);
-
-                mixpanel.track('profile_edit_description', {
+                mixpanel.track('profile_edit_description' + failed, {
                     distinct_id: ctx.chat.id,
                     mentor_id: ctx.mentor.id,
                     mentor_name: ctx.mentor.name,

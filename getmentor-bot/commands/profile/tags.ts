@@ -34,12 +34,19 @@ export function makeTagsMenu(menu: MenuTemplate<MentorContext>) {
                     }
                 }
 
-                ctx.mentor = await ctx.storage.setMentorTags(ctx.mentor, ctx.mentor.tag_ids)
+                let newMentor = await ctx.storage.setMentorTags(ctx.mentor, ctx.mentor.tag_ids)
+
+                let failed = ''
+                if (newMentor) {
+                    ctx.mentor = newMentor;
+                } else {
+                    failed = '_failed'
+                }
 
                 let tags = await ctx.storage.getAllTags();
                 let selectedTag = tags.get(key);
 
-                mixpanel.track('profile_edit_tags', {
+                mixpanel.track('profile_edit_tags' + failed, {
                     distinct_id: ctx.chat.id,
                     mentor_id: ctx.mentor.id,
                     mentor_name: ctx.mentor.name,

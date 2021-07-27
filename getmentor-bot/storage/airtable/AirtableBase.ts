@@ -7,6 +7,7 @@ import { Tag } from "../../models/Tag";
 import { MentorStorage } from "../MentorStorage";
 import NodeCache = require("node-cache");
 import { stringsContent } from "../../strings/content";
+import { reportError } from "../../utils/sentry";
 
 export class AirtableBase implements MentorStorage {
     base: Base;
@@ -44,7 +45,7 @@ export class AirtableBase implements MentorStorage {
 
     public async getMentorBySecretCode(code: string) : Promise<Mentor> {
         let mentor = await this.getMentorByField('{TgSecret}', code);
-        if (mentor) {
+        if (mentor && mentor.tg_chat_id) {
             this._mentorsCache.set(mentor.tg_chat_id, mentor);
         }
         return mentor;
@@ -192,7 +193,11 @@ export class AirtableBase implements MentorStorage {
             requests.delete(newRequest.id);
             this._activeRequestsCache.set(request.mentorId, requests);
 
-            (this._archivedRequestsCache.get(request.mentorId) as Map<string, MentorClientRequest>)?.set(newRequest.id, newRequest);
+            let archivedRequests = this._archivedRequestsCache.get(request.mentorId) as Map<string, MentorClientRequest>;
+            if (archivedRequests) {
+                archivedRequests.set(newRequest.id, newRequest)
+                this._activeRequestsCache.set(request.mentorId, archivedRequests);
+            }
         }
 
         return newRequest;
@@ -222,11 +227,16 @@ export class AirtableBase implements MentorStorage {
         let opts = {};
         opts[fieldName] = newValue;
 
-        return this.base.table('Mentors').update(mentor.id, opts)
-        .then(record => {
-            let newMentor = new Mentor(record);
-            this._mentorsCache.set(newMentor.tg_chat_id, newMentor);
-            return newMentor;
-        });
+        return this.base.table('Mentors')
+            .update(mentor.id, opts)
+            .then(record => {
+                let newMentor = new Mentor(record);
+                this._mentorsCache.set(newMentor.tg_chat_id, newMentor);
+                return newMentor;
+            })
+            .catch((e) => {
+                reportError(e);
+                return null;
+            });
     }
 }

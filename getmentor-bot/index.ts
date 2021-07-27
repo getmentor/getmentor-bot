@@ -1,8 +1,5 @@
 import { appInsights } from "./utils/appInsights";
-import { Sentry } from "./utils/sentry";
-
-appInsights.setup().start();
-
+import { reportError, Sentry } from "./utils/sentry";
 import { AzureFunction, Context, HttpRequest } from "@azure/functions"
 import { MentorContext } from "./bot/MentorContext"
 import { Telegraf, session } from 'telegraf'
@@ -57,13 +54,13 @@ bot.command('profile', ctx => {
 bot.use(menuMiddleware);
 
 bot.catch( (error, ctx) => {
-    console.error(error);
     mixpanel.track('on_bot_error', {
         distinct_id: ctx.chat.id,
         mentor_id: ctx.mentor?.id,
         mentor_name: ctx.mentor?.name,
         error: error
     })
+    reportError(error);
     ctx.reply('Произошла ошибка, простите')
 })
 
@@ -75,8 +72,7 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
     try {
         await bot.handleUpdate(req.body);
     } catch (e) {
-        console.error(e);
-        Sentry.captureException(e);
+        reportError(e);
         await Sentry.flush(2000);
     } finally {
         context.res = {

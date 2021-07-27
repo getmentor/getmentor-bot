@@ -20,7 +20,7 @@ ${format.bold('Должность')}
 ${format.escape(mentor.description)}
         
 ${format.bold('Чем можете помочь')}
-${format.escape(mentor.details)}
+${format.escape(mentor.details.substr(0, 3500))}
         
 ${format.bold('Опыт')}
 ${mentor.experience}
@@ -29,10 +29,14 @@ ${format.bold('Стоимость')}
 ${mentor.price}
 ==========
         
-Если у вас есть какие-то вопросы, напишите нам на ${stringsCommon.contactEmail} и мы обязательно поможем!`
+Если у вас есть какие-то вопросы, напишите нам на ${stringsCommon.contactEmail} и мы обязательно поможем!
+
+Для перехода в главное меню нажмите /menu.`
     },
 
     alreadyKnown: (mentor: Mentor) => {
-        return `Мы вас уже знаем, ${mentor.name}.`
+        return `Мы вас уже знаем, ${mentor.name}.
+
+Для перехода в главное меню нажмите /menu.`
     }
 }

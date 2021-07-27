@@ -8,12 +8,19 @@ export function getStatusCaption(ctx: MentorContext): string {
 }
 
 export async function setStatus(ctx: MentorContext, newState: boolean): Promise<boolean> {
-    ctx.mentor = await ctx.storage.setMentorStatus(
+    let newMentor = await ctx.storage.setMentorStatus(
         ctx.mentor,
         newState ? MentorStatus.active : MentorStatus.inactive
     );
 
-    mixpanel.track('profile_edit_status', {
+    let failed = '';
+    if (newMentor) {
+        ctx.mentor = newMentor
+    } else {
+        failed = '_failed'
+    }
+
+    mixpanel.track('profile_edit_status' + failed, {
         distinct_id: ctx.chat.id,
         mentor_id: ctx.mentor.id,
         mentor_name: ctx.mentor.name,

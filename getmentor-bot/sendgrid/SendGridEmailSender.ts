@@ -1,6 +1,6 @@
-import { senderEmail, senderName } from "../utils/const";
 import { EmailMessage } from "./messages/EmailMessage";
 import { MailService } from '@sendgrid/mail';
+import { stringsCommon } from "../strings/common";
 
 let ms = new MailService();
 ms.setApiKey(process.env.SENDGRID_API_KEY);
@@ -10,8 +10,8 @@ export class SendGridEmailSender {
         const message = {
             to: msg.recipient,
             from: { 
-                email: senderEmail,
-                name: senderName
+                email: stringsCommon.senderEmail,
+                name: stringsCommon.senderName
             },
             templateId: msg.templateId,
             dynamicTemplateData: msg.props(),

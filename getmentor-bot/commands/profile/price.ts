@@ -33,9 +33,16 @@ export function makePriceMenu(menu: MenuTemplate<MentorContext>) {
             set: async (ctx, key, newState) => {
                 let price = key as MentorPrice;
                 if (newState) {
-                    ctx.mentor = await ctx.storage.setMentorPrice(ctx.mentor, price)
+                    let newMentor = await ctx.storage.setMentorPrice(ctx.mentor, price)
+                    let failed = ''
 
-                    mixpanel.track('profile_edit_price', {
+                    if (newMentor) {
+                        ctx.mentor = newMentor
+                    } else {
+                        failed = '_failed'
+                    }
+
+                    mixpanel.track('profile_edit_price' + failed, {
                         distinct_id: ctx.chat.id,
                         mentor_id: ctx.mentor.id,
                         mentor_name: ctx.mentor.name,
