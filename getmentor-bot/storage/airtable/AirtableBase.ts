@@ -8,6 +8,7 @@ import { MentorStorage } from "../MentorStorage";
 import NodeCache = require("node-cache");
 import { stringsContent } from "../../strings/content";
 import { reportError } from "../../utils/sentry";
+import { resetWebCache } from "../../utils/webcache";
 
 export class AirtableBase implements MentorStorage {
     base: Base;
@@ -238,6 +239,7 @@ export class AirtableBase implements MentorStorage {
             .then(record => {
                 let newMentor = new Mentor(record);
                 this._mentorsCache.set(newMentor.tg_chat_id, newMentor);
+                resetWebCache()
                 return newMentor;
             })
             .catch((e) => {
