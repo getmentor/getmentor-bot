@@ -1,5 +1,6 @@
 import { appInsights } from "./utils/appInsights";
-import { reportError, Sentry } from "./utils/sentry";
+import { Sentry } from "./utils/sentry";
+import { reportError } from "./utils/monitor";
 import { AzureFunction, Context, HttpRequest } from "@azure/functions"
 import { MentorContext } from "./bot/MentorContext"
 import { Telegraf, session } from 'telegraf'

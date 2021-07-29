@@ -1,4 +1,4 @@
-import { reportError } from "./sentry";
+import { reportError } from "./monitor";
 
 const fetch = require('node-fetch');
 
