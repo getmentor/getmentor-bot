@@ -67,6 +67,6 @@ export class Mentor {
         this.tags = record.get("Tags");
         this.image = record.get("Image");
         this.experience = record.get("Experience") as MentorExperience;
-        this.calendar = record.get("Calendly");
+        this.calendar = record.get("Calendly Url");
     };
 }

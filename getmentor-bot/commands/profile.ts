@@ -22,10 +22,10 @@ export function makeEditProfileMenu(): MenuTemplate<MentorContext> {
     // Price
     makePriceMenu(profileMenu);
 
-    // Edit description
+    // Edit title
     profileMenu.interact('📝 Изменить должность', 'p_title', {
         do: async (ctx, _) => {
-            await editProfileHandler.replyWithMarkdown(ctx, stringsProfile.editTitle(ctx.mentor), 'p_title');
+            await editProfileHandler.replyWithMarkdownV2(ctx, stringsProfile.editTitle(ctx.mentor), 'p_title');
             return false;
         }
     });
@@ -34,6 +34,14 @@ export function makeEditProfileMenu(): MenuTemplate<MentorContext> {
     profileMenu.interact('📝 Изменить описание', 'p_desc', {
         do: async (ctx, _) => {
             await editProfileHandler.replyWithMarkdown(ctx, stringsProfile.editProfileDetails(), 'p_desc');
+            return false;
+        }
+    });
+
+    // Edit calendar
+    profileMenu.interact('🗓 Изменить ссылку на календарь', 'p_cal', {
+        do: async (ctx, _) => {
+            await editProfileHandler.replyWithMarkdownV2(ctx, stringsProfile.editProfileCalendar(ctx.mentor), 'p_cal');
             return false;
         }
     });
