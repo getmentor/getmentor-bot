@@ -25,7 +25,7 @@ export function makeEditProfileMenu(): MenuTemplate<MentorContext> {
     // Edit title
     profileMenu.interact('📝 Изменить должность', 'p_title', {
         do: async (ctx, _) => {
-            await editProfileHandler.replyWithMarkdownV2(ctx, stringsProfile.editTitle(ctx.mentor), 'p_title');
+            await editProfileHandler.replyWithMarkdown(ctx, stringsProfile.editTitle(ctx.mentor), 'p_title');
             return false;
         }
     });
@@ -41,7 +41,7 @@ export function makeEditProfileMenu(): MenuTemplate<MentorContext> {
     // Edit calendar
     profileMenu.interact('🗓 Изменить ссылку на календарь', 'p_cal', {
         do: async (ctx, _) => {
-            await editProfileHandler.replyWithMarkdownV2(ctx, stringsProfile.editProfileCalendar(ctx.mentor), 'p_cal');
+            await editProfileHandler.replyWithMarkdown(ctx, stringsProfile.editProfileCalendar(ctx.mentor), 'p_cal');
             return false;
         }
     });
