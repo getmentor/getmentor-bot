@@ -12,7 +12,7 @@ ${format.bold('Telegram:')} @${request.telegram}
 ${format.bold('Статус:')} ${MentorUtils.formatRequestStatus(request.status)}
 
 ${format.bold('Запрос:')}
-${request.details}`
+${format.monospace(format.escape(request.details.substring(0, 3500)))}`
     },
 
     buttonContacted: '💬 Связался с менти',
