@@ -17,6 +17,7 @@ export function singleRequestSubmenu(): MenuTemplate<MentorContext> {
         }
     })
 
+    // Active requests menu
     singleRequestSubmenu.interact(stringsSingleRequest.buttonContacted, 'contacted', {
         do: async ctx => {
             await setNewStatus(ctx, MentorClientRequestStatus.contacted);
@@ -50,6 +51,46 @@ export function singleRequestSubmenu(): MenuTemplate<MentorContext> {
         }
     );
 
+    // Unavailable mentee
+    singleRequestSubmenu.interact(stringsSingleRequest.buttonUnavailable, 'unavailable', {
+        do: async ctx => {
+            await setNewStatus(ctx, MentorClientRequestStatus.unavailable);
+            return true;
+        },
+        hide: ctx => isHidden(ctx)
+    });
+
+    singleRequestSubmenu.interact(stringsSingleRequest.buttonAvailable, 'available', {
+        do: async ctx => {
+            const id = ctx.match![1]!;
+            let request = ctx.mentor.archivedRequests?.get(id);
+            let newRequest = await ctx.storage.setRequestStatus(request, MentorClientRequestStatus.contacted);
+
+            if (newRequest) {
+                ctx.mentor.archivedRequests?.delete(newRequest.id);
+                ctx.mentor.requests?.set(newRequest.id, newRequest);
+
+                await ctx.answerCbQuery('Статус обновлен, спасибо!');
+                menuMiddleware.replyToContext(ctx, '/r/');
+
+                mixpanel.track('request_status_change', {
+                    distinct_id: ctx.chat.id,
+                    mentor_id: ctx.mentor.id,
+                    mentor_name: ctx.mentor.name,
+                    request_id: newRequest.id,
+                    request_name: newRequest.name,
+                    status: 'available'
+                })
+            }
+            return true;
+        },
+        hide: ctx => {
+            const id = ctx.match![1]!;
+            return ctx.mentor.archivedRequests?.get(id)?.status === MentorClientRequestStatus.unavailable ? false : true;
+        }
+    });
+
+    // Reviews
     singleRequestSubmenu.submenu(
         stringsSingleRequest.buttonViewReview,
         'review',
@@ -74,7 +115,9 @@ async function setNewStatus(ctx: MentorContext, newStatus: MentorClientRequestSt
     if (newRequest) {
         ctx.mentor.requests.set(newRequest.id, newRequest);
 
-        if (newRequest.status === MentorClientRequestStatus.done || newRequest.status === MentorClientRequestStatus.declined) {
+        if (   newRequest.status === MentorClientRequestStatus.done
+            || newRequest.status === MentorClientRequestStatus.declined
+            || newRequest.status === MentorClientRequestStatus.unavailable ) {
             ctx.mentor.requests.delete(newRequest.id);
             ctx.mentor.archivedRequests?.set(newRequest.id, newRequest);
         }

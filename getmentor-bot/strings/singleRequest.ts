@@ -20,6 +20,8 @@ ${format.monospace(format.escape(request.details.substring(0, 3500)))}`
     buttonDone: '✅ Встреча состоялась',
     buttonDecline: '❌ Отклонить...',
     buttonDeclineConfirm: '❌ Да! Отклонить.',
+    buttonUnavailable: '🤷 Не удалось связаться',
+    buttonAvailable: '👋 Связались',
     buttonViewReview: '✍️ Посмотреть отзыв',
 
     requestCompletedByMentor: (mentor: Mentor, request: MentorClientRequest) => {

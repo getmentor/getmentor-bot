@@ -6,7 +6,8 @@ export enum MentorClientRequestStatus {
     working = "working",
     done = "done",
     reschedule = "reschedule",
-    declined = "declined"
+    declined = "declined",
+    unavailable = "unavailable"
 }
 
 export class MentorClientRequest {

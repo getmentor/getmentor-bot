@@ -66,7 +66,7 @@ export class AirtableBase implements MentorStorage {
 
     public async getMentorActiveRequests(mentor: Mentor): Promise<Map<string, MentorClientRequest>> {
         return this.getMentorRequests(mentor, {
-            filterByFormula: `AND({Mentor Id}='${mentor.id}',Status!='done',Status!='declined')`,
+            filterByFormula: `AND({Mentor Id}='${mentor.id}',Status!='done',Status!='declined',Status!='unavailable')`,
             sort: [{field: "Created Time", direction: "asc"}]
         }, this._activeRequestsCache);
     }
@@ -201,19 +201,30 @@ export class AirtableBase implements MentorStorage {
         let newRequest = await this.updateMentorRequestField(request, 'Status', MentorClientRequestStatus[newStatus], this._activeRequestsCache);
 
         // Some mumbo jumbo when changing status to done or declined
-        if (newRequest.status === MentorClientRequestStatus.done || newRequest.status === MentorClientRequestStatus.declined) {
-            let requests = this._activeRequestsCache.get(request.mentorId) as Map<string, MentorClientRequest>;
-            requests.delete(newRequest.id);
-            this._activeRequestsCache.set(request.mentorId, requests);
-
-            let archivedRequests = this._archivedRequestsCache.get(request.mentorId) as Map<string, MentorClientRequest>;
-            if (archivedRequests) {
-                archivedRequests.set(newRequest.id, newRequest)
-                this._activeRequestsCache.set(request.mentorId, archivedRequests);
-            }
+        if (   newRequest.status === MentorClientRequestStatus.done
+            || newRequest.status === MentorClientRequestStatus.declined
+            || newRequest.status === MentorClientRequestStatus.unavailable) {
+            this.swapRequestInCache(newRequest, this._activeRequestsCache, this._archivedRequestsCache);
+        }
+        if (request.status === MentorClientRequestStatus.unavailable && newRequest.status === MentorClientRequestStatus.contacted) {
+            this.swapRequestInCache(newRequest, this._archivedRequestsCache, this._activeRequestsCache);
         }
 
         return newRequest;
+    }
+
+    private swapRequestInCache(request: MentorClientRequest, from: NodeCache, to: NodeCache): void {
+        let fromRequests = from.get(request.mentorId) as Map<string, MentorClientRequest>;
+        if (fromRequests) {
+            fromRequests.delete(request.id);
+            from.set(request.mentorId, fromRequests);
+        }
+
+        let toRequests = to.get(request.mentorId) as Map<string, MentorClientRequest>;
+        if (toRequests) {
+            toRequests.set(request.id, request)
+            to.set(request.mentorId, toRequests);
+        }
     }
 
     private async updateMentorRequestField(request: MentorClientRequest, fieldName: string, newValue: any, cache: NodeCache): Promise<MentorClientRequest> {

@@ -66,6 +66,9 @@ export class MentorUtils {
 
             case MentorClientRequestStatus.declined:
                 return this.formatRequestStatusPrefix(status) + ' Отклонена';
+
+            case MentorClientRequestStatus.unavailable:
+                return this.formatRequestStatusPrefix(status) + ' Не удалось связаться';
         
             default:
                 return this.formatRequestStatusPrefix(status) + ' Неизвестно';
@@ -88,6 +91,9 @@ export class MentorUtils {
 
             case MentorClientRequestStatus.reschedule:
                 return '🔄';
+
+            case MentorClientRequestStatus.unavailable:
+                return '🤷';
 
             case MentorClientRequestStatus.declined:
                 return '❌';
