@@ -16,6 +16,7 @@ let base= new Airtable({
 
 const timerTrigger: AzureFunction = async function (context: Context, myTimer: any): Promise<void> {
     try {
+        // get all mentors
         const mentors =
             await base('Mentors')
             .select({ fields: [ 'SortOrder' ] })
@@ -34,6 +35,7 @@ const timerTrigger: AzureFunction = async function (context: Context, myTimer: a
             })
             batchCount++;
 
+            // update can only work with 10 record batches
             if (batchCount == 10) {
                 await base('Mentors').update(updateRecords);
                 batchCount = 0;
@@ -43,6 +45,7 @@ const timerTrigger: AzureFunction = async function (context: Context, myTimer: a
         });
 
         if (updateRecords.length > 0) {
+            // update what's left
             await base('Mentors').update(updateRecords);
             totalBatches++;
         }
