@@ -1,5 +1,5 @@
 import {html as format} from 'telegram-format';
-import { Mentor } from '../models/Mentor';
+import { Mentor } from '../../lib/models/Mentor';
 import { stringsCommon } from './common';
 
 export const stringsMain = {

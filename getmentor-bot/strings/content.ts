@@ -1,5 +1,5 @@
-import { Mentor, MentorStatus } from "../models/Mentor";
-import { MentorUtils } from "../utils/MentorUtils";
+import { Mentor, MentorStatus } from "../../lib/models/Mentor";
+import { MentorUtils } from "../../lib/utils/MentorUtils";
 
 export const stringsContent = {
     headline: (mentor: Mentor) => {

@@ -1,7 +1,7 @@
 import { MenuTemplate } from "telegraf-inline-menu";
 import { backButtons } from "../../bot/general";
 import { MentorContext } from "../../bot/MentorContext";
-import { Mentor, MentorPrice } from "../../models/Mentor";
+import { Mentor, MentorPrice } from "../../../lib/models/Mentor";
 import { mixpanel } from "../../utils/mixpanel";
 
 export function makePriceMenu(menu: MenuTemplate<MentorContext>) {

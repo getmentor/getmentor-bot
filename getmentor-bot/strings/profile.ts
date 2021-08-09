@@ -1,5 +1,5 @@
 import {markdownv2 as format} from 'telegram-format';
-import { Mentor } from '../models/Mentor';
+import { Mentor } from '../../lib/models/Mentor';
 
 export const stringsProfile = {
     currentDetails: (mentor: Mentor) => {

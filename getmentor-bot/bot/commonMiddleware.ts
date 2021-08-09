@@ -1,4 +1,4 @@
-import { MentorStorage } from "../storage/MentorStorage";
+import { MentorStorage } from "../../lib/storage/MentorStorage";
 import { MentorContext } from "./MentorContext";
 
 export async function commonMiddleware(storage: MentorStorage, ctx: MentorContext, next) {

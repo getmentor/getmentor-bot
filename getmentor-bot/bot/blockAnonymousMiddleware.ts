@@ -1,4 +1,4 @@
-import { MentorStatus } from "../models/Mentor";
+import { MentorStatus } from "../../lib/models/Mentor";
 import { stringsStart } from "../strings/start";
 import { mixpanel } from "../utils/mixpanel";
 import { MentorContext } from "./MentorContext";

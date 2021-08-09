@@ -1,9 +1,9 @@
 import { MenuTemplate } from "telegraf-inline-menu";
 import { backButtons, menuMiddleware } from "../../bot/general";
 import { MentorContext } from "../../bot/MentorContext";
-import { MentorClientRequestStatus } from "../../models/MentorClientRequest";
+import { MentorClientRequestStatus } from "../../../lib/models/MentorClientRequest";
 import { stringsSingleRequest } from "../../strings/singleRequest";
-import { MentorUtils } from "../../utils/MentorUtils";
+import { MentorUtils } from "../../../lib/utils/MentorUtils";
 import { SendGridEmailSender } from "../../sendgrid/SendGridEmailSender"
 import { SessionCompleteMessage } from "../../sendgrid/messages/SessionCompleteMessage";
 import { SessionDeclinedMessage } from "../../sendgrid/messages/SessionDeclinedMessage";

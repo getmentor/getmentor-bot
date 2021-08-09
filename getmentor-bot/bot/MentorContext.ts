@@ -1,6 +1,6 @@
 import { Context as TgContext} from 'telegraf';
-import { Mentor } from '../models/Mentor';
-import { MentorStorage } from '../storage/MentorStorage';
+import { Mentor } from '../../lib/models/Mentor';
+import { MentorStorage } from '../../lib/storage/MentorStorage';
 
 interface MentorSession {
     tagsPage: number;

@@ -1,5 +1,5 @@
-import { Mentor } from "../../models/Mentor";
-import { MentorClientRequest } from "../../models/MentorClientRequest";
+import { Mentor } from "../../../lib/models/Mentor";
+import { MentorClientRequest } from "../../../lib/models/MentorClientRequest";
 import { EmailMessage } from "./EmailMessage";
 
 export class SessionCompleteMessage extends EmailMessage {

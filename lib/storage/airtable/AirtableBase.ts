@@ -6,9 +6,9 @@ import { MentorClientRequest, MentorClientRequestStatus } from "../../models/Men
 import { Tag } from "../../models/Tag";
 import { MentorStorage } from "../MentorStorage";
 import NodeCache = require("node-cache");
-import { stringsContent } from "../../strings/content";
-import { reportError } from "../../utils/monitor";
-import { resetWebCache } from "../../utils/webcache";
+import { stringsContent } from "../../../getmentor-bot/strings/content";
+import { reportError } from "../../../getmentor-bot/utils/monitor";
+import { resetWebCache } from "../../../getmentor-bot/utils/webcache";
 
 export class AirtableBase implements MentorStorage {
     base: Base;

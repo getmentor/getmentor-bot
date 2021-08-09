@@ -1,7 +1,7 @@
-import { Mentor } from "../models/Mentor";
+import { Mentor } from "../../lib/models/Mentor";
 import { stringsCommon } from "./common";
 import {html as format} from 'telegram-format';
-import { MentorUtils } from "../utils/MentorUtils";
+import { MentorUtils } from "../../lib/utils/MentorUtils";
 
 export const stringsCode = {
     unknown: () => {

@@ -1,7 +1,7 @@
 import {html as format} from 'telegram-format';
-import { Mentor, MentorPrice } from '../models/Mentor';
-import { MentorClientRequest } from '../models/MentorClientRequest';
-import { MentorUtils } from '../utils/MentorUtils';
+import { Mentor, MentorPrice } from '../../lib/models/Mentor';
+import { MentorClientRequest } from '../../lib/models/MentorClientRequest';
+import { MentorUtils } from '../../lib/utils/MentorUtils';
 
 export const stringsSingleRequest = {
     requestDetails: (request: MentorClientRequest) => {

@@ -8,7 +8,7 @@ import { onStart } from "./commands/start";
 import { commonMiddleware } from "./bot/commonMiddleware";
 import { onCode } from "./commands/code";
 import { blockAnonymousMiddleware } from "./bot/blockAnonymousMiddleware";
-import { AirtableBase } from "./storage/airtable/AirtableBase";
+import { AirtableBase } from "../lib/storage/airtable/AirtableBase";
 import { editProfileHandler, menuMiddleware } from "./bot/general";
 import { mixpanel } from "./utils/mixpanel";
 

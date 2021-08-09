@@ -1,5 +1,5 @@
-import { Mentor } from "../../models/Mentor";
-import { MentorClientRequest } from "../../models/MentorClientRequest";
+import { Mentor } from "../../../lib/models/Mentor";
+import { MentorClientRequest } from "../../../lib/models/MentorClientRequest";
 
 export abstract class EmailMessage {
     protected  _mentor: Mentor;

@@ -1,6 +1,6 @@
 import { MentorContext } from "../../bot/MentorContext";
-import { MentorStatus } from "../../models/Mentor";
-import { MentorUtils } from "../../utils/MentorUtils";
+import { MentorStatus } from "../../../lib/models/Mentor";
+import { MentorUtils } from "../../../lib/utils/MentorUtils";
 import { mixpanel } from "../../utils/mixpanel";
 
 export function getStatusCaption(ctx: MentorContext): string {
