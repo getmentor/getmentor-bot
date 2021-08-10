@@ -26,9 +26,9 @@ const timerTrigger: AzureFunction = async function (context: Context, myTimer: a
         let batchCount = 0;
         let totalBatches = 0;
 
-        mentors.forEach(async m => {
+        for (var i = 0; i < mentors.length; i++) {
             updateRecords.push({
-                id: m.id,
+                id: mentors[i].id,
                 fields: {
                     'SortOrder': Math.floor(Math.random() * 1000)
                 }
@@ -38,11 +38,13 @@ const timerTrigger: AzureFunction = async function (context: Context, myTimer: a
             // update can only work with 10 record batches
             if (batchCount === 10) {
                 base('Mentors').update(updateRecords);
+                await new Promise(r => setTimeout(r, 220));
+
                 batchCount = 0;
                 totalBatches++;
                 updateRecords = new Array<any>();
             }
-        });
+        };
 
         if (updateRecords.length > 0) {
             // update what's left
