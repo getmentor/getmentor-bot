@@ -10,6 +10,7 @@ ${format.bold('Имя:')} ${request.name}
 ${format.bold('Email:')} ${request.email}
 ${format.bold('Telegram:')} @${request.telegram}
 ${format.bold('Статус:')} ${MentorUtils.formatRequestStatus(request.status)}
+${format.bold('Уровень: ') + (request.level ? request.level : 'Не указал')}
 
 ${format.bold('Запрос:')}
 ${format.monospace(format.escape(request.details.substring(0, 3500)))}`

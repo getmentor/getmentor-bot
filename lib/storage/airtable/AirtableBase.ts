@@ -88,6 +88,7 @@ export class AirtableBase implements MentorStorage {
             "Email",
             "Telegram",
             "Description",
+            "Level",
             "Review",
             "Status",
             "Created Time",
