@@ -11,6 +11,7 @@ import { blockAnonymousMiddleware } from "./bot/blockAnonymousMiddleware";
 import { AirtableBase } from "../lib/storage/airtable/AirtableBase";
 import { editProfileHandler, menuMiddleware } from "./bot/general";
 import { mixpanel } from "./utils/mixpanel";
+import { adminMiddleware } from "./bot/adminMiddleware";
 
 const { TELEGRAM_BOT_TOKEN, WEBHOOK_ADDRESS } = process.env;
 const airtable = new AirtableBase(process.env["AIRTABLE_API_KEY"], process.env['AIRTABLE_BASE_ID']);
@@ -24,6 +25,7 @@ bot.use( (ctx, next) => commonMiddleware(airtable, ctx, next));
 bot.command('start', ctx => onStart(ctx))
 bot.hears(/^[0-9a-zA-Z]{8}$/i, ctx => onCode(ctx, ctx.message.text));
 
+bot.use(adminMiddleware);
 bot.use(blockAnonymousMiddleware);
 bot.use(editProfileHandler.middleware());
 
@@ -50,6 +52,17 @@ bot.command('profile', ctx => {
         mentor_name: ctx.mentor?.name
     })
     menuMiddleware.replyToContext(ctx, "/edit_p/")
+})
+
+bot.command('admin', ctx => {
+    if (ctx.admin) {
+        mixpanel.track('on_menu_admin', {
+            distinct_id: ctx.chat.id,
+            mentor_id: ctx.mentor?.id,
+            mentor_name: ctx.mentor?.name
+        })
+        menuMiddleware.replyToContext(ctx, "/admin/")
+    }
 })
 
 bot.use(menuMiddleware);

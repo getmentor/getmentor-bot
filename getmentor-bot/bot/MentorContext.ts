@@ -13,4 +13,5 @@ export interface MentorContext extends TgContext {
     mentor: Mentor;
     session?: MentorSession,
     match: RegExpExecArray | undefined;
+    admin: boolean;
 }

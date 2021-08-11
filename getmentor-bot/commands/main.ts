@@ -3,6 +3,7 @@ import { MentorContext } from "../bot/MentorContext"
 import { stringsMain } from "../strings/main";
 import { makeEditProfileMenu } from "./profile";
 import { makeRequestsMenu } from "./requests";
+import { makeAdminMenu } from "./admin/admin";
 
 export function mainMenu(): MenuTemplate<MentorContext> {
     const menu = new MenuTemplate<MentorContext>(ctx => stringsMain.welcomeMentor(ctx.mentor));
@@ -24,6 +25,12 @@ export function mainMenu(): MenuTemplate<MentorContext> {
     // Profile URL
     menu.url('🔗 Ссылка на профиль', (ctx) => {
         return ctx.mentor ? ctx.mentor.url : 'https://getmentor.dev';
+    });
+
+    // Admin
+    let adminMenu = makeAdminMenu();
+    menu.submenu('Админка', 'admin', adminMenu, {
+        hide: ctx => !ctx.admin
     });
 
     // calendly
