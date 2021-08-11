@@ -142,6 +142,7 @@ export class AirtableBase implements MentorStorage {
                 "Details",
                 "Profile Url",
                 "Alias",
+                "Id",
                 "TgSecret",
                 "Telegram",
                 "Telegram Chat Id",
@@ -152,6 +153,7 @@ export class AirtableBase implements MentorStorage {
                 "Image",
                 "Experience",
                 "Calendly Url",
+                "AuthToken"
             ],
             filterByFormula: `${fieldName}='${fieldValue}'`
         }).all().then(records => {

@@ -1,6 +1,7 @@
 import { MenuTemplate } from "telegraf-inline-menu";
 import { backButtons, editProfileHandler } from "../bot/general";
 import { MentorContext } from "../bot/MentorContext";
+import { stringsCommon } from "../strings/common";
 import { stringsProfile } from "../strings/profile";
 import { makePriceMenu } from "./profile/price";
 import { getStatusCaption, isStatusSet, setStatus } from "./profile/status";
@@ -15,6 +16,12 @@ export function makeEditProfileMenu(): MenuTemplate<MentorContext> {
         isSet: isStatusSet,
         formatState: (_, text, __) => text,
     })
+
+    profileMenu.url('🔗 [BETA] Редактировать профиль онлайн', (ctx) => {
+        return `${stringsCommon.baseUrl}/profile?id=${ctx.mentor.internalId}&token=${ctx.mentor.authToken}`
+    }, {
+        hide: (ctx) => process.env.SHOW_EDIT_PROFILE_ONLINE ? false : true
+    });
 
     // Tags
     makeTagsMenu(profileMenu);

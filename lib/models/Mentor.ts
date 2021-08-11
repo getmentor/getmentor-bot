@@ -45,10 +45,12 @@ export class Mentor {
     tag_ids: string[];
     tags: string;
     image: string;
+    internalId: string;
     experience: MentorExperience;
     calendar: string;
     requests: Map<string, MentorClientRequest>;
     archivedRequests: Map<string, MentorClientRequest>;
+    authToken: string;
 
     constructor(record: MentorStorageRecord) {
         this.id = record.id;
@@ -58,6 +60,7 @@ export class Mentor {
         this.details = record.get("Details");
         this.url = record.get("Profile Url");
         this.alias = record.get("Alias");
+        this.internalId = record.get("Id");
         this.tg_secret = record.get("TgSecret");
         this.tg_username = record.get("Telegram");
         this.tg_chat_id = record.get("Telegram Chat Id");
@@ -68,5 +71,6 @@ export class Mentor {
         this.image = record.get("Image");
         this.experience = record.get("Experience") as MentorExperience;
         this.calendar = record.get("Calendly Url");
+        this.authToken = record.get("AuthToken");
     };
 }
