@@ -1,4 +1,4 @@
-import { reportError } from "./monitor";
+import { reportError } from "../../lib/utils/monitor";
 
 const fetch = require('node-fetch');
 

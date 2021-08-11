@@ -8,14 +8,12 @@ export function mainMenu(): MenuTemplate<MentorContext> {
     const menu = new MenuTemplate<MentorContext>(ctx => stringsMain.welcomeMentor(ctx.mentor));
 
     // Requests
-    if (process.env.TOGGLE_REQUESTS_MENU) {
-        let allRequestsMenu = makeRequestsMenu();
-        menu.submenu(
-            '👉 Ваши заявки',
-            'r',
-            allRequestsMenu
-        )
-    }
+    let allRequestsMenu = makeRequestsMenu();
+    menu.submenu(
+        '👉 Ваши заявки',
+        'r',
+        allRequestsMenu
+    )
 
     // Edit profile
     let profileMenu = makeEditProfileMenu();
@@ -25,9 +23,6 @@ export function mainMenu(): MenuTemplate<MentorContext> {
     menu.url('🔗 Ссылка на профиль', (ctx) => {
         return ctx.mentor ? ctx.mentor.url : 'https://getmentor.dev';
     });
-
-    // calendly
-    //menu.switchToCurrentChat('📆 Calendly', 'calendly');
 
     return menu;
 }

@@ -1,6 +1,6 @@
-import { appInsights } from "./utils/appInsights";
-import { Sentry } from "./utils/sentry";
-import { reportError } from "./utils/monitor";
+import { appInsights } from "../lib/utils/appInsights";
+import { Sentry } from "../lib/utils/sentry";
+import { reportError } from "../lib/utils/monitor";
 import { AzureFunction, Context, HttpRequest } from "@azure/functions"
 import { MentorContext } from "./bot/MentorContext"
 import { Telegraf, session } from 'telegraf'
@@ -75,12 +75,13 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
     } catch (e) {
         reportError(e);
         context.log(e);
-        await Sentry.flush(2000);
     } finally {
         context.res = {
             status: 200
         };
     }
+
+    await Sentry.flush(2000);
 }
 
 export default httpTrigger;
