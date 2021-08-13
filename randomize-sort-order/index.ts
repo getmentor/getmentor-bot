@@ -12,7 +12,7 @@ let base= new Airtable({
     apiKey: apiKey
 }).base(baseId);
 
-const production = process.env.NODE_ENV === 'production';
+const production = process.env.APP_ENV === 'production';
 
 const timerTrigger: AzureFunction = async function (context: Context, myTimer: any): Promise<void> {
     try {
