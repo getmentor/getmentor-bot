@@ -73,7 +73,7 @@ export function singleRequestSubmenu(): MenuTemplate<MentorContext> {
                 await ctx.answerCbQuery('Статус обновлен, спасибо!');
                 menuMiddleware.replyToContext(ctx, '/r/');
 
-                mixpanel.track('request_status_change', {
+                mixpanel.track('request_status_change_available', {
                     distinct_id: ctx.chat.id,
                     mentor_id: ctx.mentor.id,
                     mentor_name: ctx.mentor.name,
@@ -134,7 +134,7 @@ async function setNewStatus(ctx: MentorContext, newStatus: MentorClientRequestSt
         await ctx.answerCbQuery('Статус обновлен, спасибо!');
         menuMiddleware.replyToContext(ctx, '/r/');
 
-        mixpanel.track('request_status_change', {
+        mixpanel.track('request_status_change_' + newRequest.status.toString(), {
             distinct_id: ctx.chat.id,
             mentor_id: ctx.mentor.id,
             mentor_name: ctx.mentor.name,
