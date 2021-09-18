@@ -66,7 +66,7 @@ export class Mentor {
         this.tg_chat_id = record.get("Telegram Chat Id");
         this.price = record.get("Price") as MentorPrice;
         this.status = record.get("Status") as MentorStatus;
-        this.tag_ids = record.get("Tags Links");
+        this.tag_ids = record.get("Tags Links") || [];
         this.tags = record.get("Tags");
         this.image = record.get("Image");
         this.experience = record.get("Experience") as MentorExperience;
