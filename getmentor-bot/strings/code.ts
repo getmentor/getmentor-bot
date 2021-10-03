@@ -17,8 +17,11 @@ return `Привет ${mentor.name}!
 Вот информация, которую мы о вас знаем:
 ==========
 ${format.bold('Должность')}
-${format.escape(mentor.description)}
-        
+${format.escape(mentor.job)}
+
+${format.bold('Компания')}
+${format.escape(mentor.workplace)}
+
 ${format.bold('Чем можете помочь')}
 ${format.escape(mentor.details.substr(0, 3500))}
         

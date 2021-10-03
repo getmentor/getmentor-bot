@@ -33,8 +33,9 @@ export class Mentor {
     id: string;
     name: string;
     email: string;
-    description: string;
     details: string;
+    job: string;
+    workplace: string;
     url: string;
     alias: string;
     tg_secret: string;
@@ -54,9 +55,10 @@ export class Mentor {
 
     constructor(record: MentorStorageRecord) {
         this.id = record.id;
-        this.name = record.get("Title");
+        this.name = record.get("Name");
         this.email = record.get("Email");
-        this.description = record.get("Description");
+        this.job = record.get("JobTitle") || '-';
+        this.workplace = record.get("Workplace") || '-';
         this.details = record.get("Details");
         this.url = record.get("Profile Url");
         this.alias = record.get("Alias");

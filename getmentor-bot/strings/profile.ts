@@ -15,7 +15,7 @@ ${format.monospaceBlock(format.escape(mentor.details))}`
     editTitle: (mentor: Mentor) => {
         return `Текущая должность:
 
-${mentor.description}
+${mentor.job} @ ${mentor.workplace}
 
 Введите новую информацию в формате 'Должность @ Компания'`;
     },

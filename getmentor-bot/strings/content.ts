@@ -3,7 +3,7 @@ import { MentorUtils } from "../../lib/utils/MentorUtils";
 
 export const stringsContent = {
     headline: (mentor: Mentor) => {
-        return `<h3>${mentor.description}</h3>`;
+        return `<h3>${mentor.job} @ ${mentor.workplace}</h3>`;
     },
 
     description: (mentor: Mentor) => {

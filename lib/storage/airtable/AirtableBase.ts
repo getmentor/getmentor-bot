@@ -136,9 +136,10 @@ export class AirtableBase implements MentorStorage {
             maxRecords: 1,
             view: "Grid view",
             fields: [
-                "Title",
+                "Name",
                 "Email",
-                "Description",
+                "JobTitle",
+                "Workplace",
                 "Details",
                 "Profile Url",
                 "Alias",
@@ -186,7 +187,12 @@ export class AirtableBase implements MentorStorage {
     public async setMentorTitle(mentor: Mentor, newDescription: string): Promise<Mentor> {
         if (!mentor) return;
 
-        return this.updateMentorField(mentor, 'Description', newDescription);
+        const jobs = newDescription.split('@');
+        let fields = {};
+        fields["JobTitle"] = jobs[0];
+        fields["Workplace"] = jobs.length > 0 ? jobs[1] : '-';
+
+        return this.updateMentorFields(mentor, fields);
     }
 
     public async setMentorCalendar(mentor: Mentor, newCalendar: string): Promise<Mentor> {
@@ -254,8 +260,12 @@ export class AirtableBase implements MentorStorage {
         let opts = {};
         opts[fieldName] = newValue;
 
+        return this.updateMentorFields(mentor, opts);
+    }
+
+    private async updateMentorFields(mentor: Mentor, fields: any): Promise<Mentor> {
         return this.base.table('Mentors')
-            .update(mentor.id, opts)
+            .update(mentor.id, fields)
             .then(record => {
                 let newMentor = new Mentor(record);
                 this._mentorsCache.set(newMentor.tg_chat_id, newMentor);
