@@ -17,7 +17,7 @@ export function makeEditProfileMenu(): MenuTemplate<MentorContext> {
         formatState: (_, text, __) => text,
     })
 
-    profileMenu.url('🔗 [BETA] Редактировать профиль онлайн', (ctx) => {
+    profileMenu.url('🔗 ❕[NEW] Редактировать профиль онлайн', (ctx) => {
         return `${stringsCommon.baseUrl}/profile?id=${ctx.mentor.internalId}&token=${ctx.mentor.authToken}`
     }, {
         hide: (ctx) => process.env.SHOW_EDIT_PROFILE_ONLINE ? false : true
@@ -30,20 +30,20 @@ export function makeEditProfileMenu(): MenuTemplate<MentorContext> {
     makePriceMenu(profileMenu);
 
     // Edit title
-    profileMenu.interact('📝 Изменить должность', 'p_title', {
-        do: async (ctx, _) => {
-            await editProfileHandler.replyWithMarkdown(ctx, stringsProfile.editTitle(ctx.mentor), 'p_title');
-            return false;
-        }
-    });
+    // profileMenu.interact('📝 Изменить должность', 'p_title', {
+    //     do: async (ctx, _) => {
+    //         await editProfileHandler.replyWithMarkdown(ctx, stringsProfile.editTitle(ctx.mentor), 'p_title');
+    //         return false;
+    //     }
+    // });
 
-    // Edit description
-    profileMenu.interact('📝 Изменить описание', 'p_desc', {
-        do: async (ctx, _) => {
-            await editProfileHandler.replyWithMarkdown(ctx, stringsProfile.editProfileDetails(), 'p_desc');
-            return false;
-        }
-    });
+    // // Edit description
+    // profileMenu.interact('📝 Изменить описание', 'p_desc', {
+    //     do: async (ctx, _) => {
+    //         await editProfileHandler.replyWithMarkdown(ctx, stringsProfile.editProfileDetails(), 'p_desc');
+    //         return false;
+    //     }
+    // });
 
     // Edit calendar
     profileMenu.interact('🗓 Изменить ссылку на календарь', 'p_cal', {
