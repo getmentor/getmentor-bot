@@ -1,11 +1,9 @@
 import { MenuTemplate } from "telegraf-inline-menu";
-import { backButtons, editProfileHandler } from "../bot/general";
+import { backButtons } from "../bot/general";
 import { MentorContext } from "../bot/MentorContext";
 import { stringsCommon } from "../strings/common";
-import { stringsProfile } from "../strings/profile";
-import { makePriceMenu } from "./profile/price";
+
 import { getStatusCaption, isStatusSet, setStatus } from "./profile/status";
-import { makeTagsMenu } from "./profile/tags";
 
 export function makeEditProfileMenu(): MenuTemplate<MentorContext> {
     const profileMenu = new MenuTemplate<MentorContext>('Редактировать профиль');
@@ -17,17 +15,17 @@ export function makeEditProfileMenu(): MenuTemplate<MentorContext> {
         formatState: (_, text, __) => text,
     })
 
-    profileMenu.url('🔗 ❕[NEW] Редактировать профиль онлайн', (ctx) => {
+    profileMenu.url('🔗 Редактировать профиль онлайн', (ctx) => {
         return `${stringsCommon.baseUrl}/profile?id=${ctx.mentor.internalId}&token=${ctx.mentor.authToken}`
     }, {
         hide: (ctx) => process.env.SHOW_EDIT_PROFILE_ONLINE ? false : true
     });
 
     // Tags
-    makeTagsMenu(profileMenu);
+    // makeTagsMenu(profileMenu);
 
     // Price
-    makePriceMenu(profileMenu);
+    // makePriceMenu(profileMenu);
 
     // Edit title
     // profileMenu.interact('📝 Изменить должность', 'p_title', {
@@ -46,12 +44,12 @@ export function makeEditProfileMenu(): MenuTemplate<MentorContext> {
     // });
 
     // Edit calendar
-    profileMenu.interact('🗓 Изменить ссылку на календарь', 'p_cal', {
-        do: async (ctx, _) => {
-            await editProfileHandler.replyWithMarkdown(ctx, stringsProfile.editProfileCalendar(ctx.mentor), 'p_cal');
-            return false;
-        }
-    });
+    // profileMenu.interact('🗓 Изменить ссылку на календарь', 'p_cal', {
+    //     do: async (ctx, _) => {
+    //         await editProfileHandler.replyWithMarkdown(ctx, stringsProfile.editProfileCalendar(ctx.mentor), 'p_cal');
+    //         return false;
+    //     }
+    // });
 
     profileMenu.manualRow(backButtons);
 

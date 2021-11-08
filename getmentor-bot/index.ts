@@ -9,7 +9,7 @@ import { commonMiddleware } from "./bot/commonMiddleware";
 import { onCode } from "./commands/code";
 import { blockAnonymousMiddleware } from "./bot/blockAnonymousMiddleware";
 import { AirtableBase } from "../lib/storage/airtable/AirtableBase";
-import { editProfileHandler, menuMiddleware } from "./bot/general";
+import { menuMiddleware } from "./bot/general";
 import { mixpanel } from "./utils/mixpanel";
 
 const { TELEGRAM_BOT_TOKEN, WEBHOOK_ADDRESS } = process.env;
@@ -25,7 +25,6 @@ bot.command('start', ctx => onStart(ctx))
 bot.hears(/^[0-9a-zA-Z]{8}$/i, ctx => onCode(ctx, ctx.message.text));
 
 bot.use(blockAnonymousMiddleware);
-bot.use(editProfileHandler.middleware());
 
 bot.command('menu', ctx => {
     mixpanel.track('on_menu_command', {
