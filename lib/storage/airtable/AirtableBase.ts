@@ -1,12 +1,10 @@
-import { Mentor, MentorPrice, MentorStatus } from "../../models/Mentor";
+import { Mentor, MentorStatus } from "../../models/Mentor";
 
 import Airtable from "airtable";
 import Base from "airtable/lib/base";
 import { MentorClientRequest, MentorClientRequestStatus } from "../../models/MentorClientRequest";
-import { Tag } from "../../models/Tag";
 import { MentorStorage } from "../MentorStorage";
 import NodeCache = require("node-cache");
-import { stringsContent } from "../../../getmentor-bot/strings/content";
 import { reportError } from "../../utils/monitor";
 import { resetWebCache } from "../../../getmentor-bot/utils/webcache";
 
@@ -17,8 +15,6 @@ export class AirtableBase implements MentorStorage {
     _mentorsCache: NodeCache;
     _activeRequestsCache: NodeCache;
     _archivedRequestsCache: NodeCache;
-
-    private _allTags: Map<string, Tag>;
     
     constructor(apiKey: string, baseId: string) {
         this.airtable= new Airtable({
@@ -26,7 +22,6 @@ export class AirtableBase implements MentorStorage {
             apiKey: apiKey
         });
         this.base = new Base(this.airtable, baseId);
-        this._allTags = undefined;
 
         this._mentorsCache = new NodeCache({ stdTTL: 600, checkperiod: 60 });
         this._activeRequestsCache = new NodeCache({ stdTTL: 600, checkperiod: 60 });
@@ -57,11 +52,6 @@ export class AirtableBase implements MentorStorage {
         if (mentor.status === newStatus) return mentor;
 
         return this.updateMentorField(mentor, 'Status', MentorStatus[newStatus]);
-    }
-
-    public async setMentorTags(mentor: Mentor, newTagIds: string[]): Promise<Mentor> {
-        if (!mentor) return;
-        return this.updateMentorField(mentor, 'Tags Links', newTagIds);
     }
 
     public async getMentorActiveRequests(mentor: Mentor): Promise<Map<string, MentorClientRequest>> {
@@ -116,21 +106,6 @@ export class AirtableBase implements MentorStorage {
         return requests;
     }
 
-    public async getAllTags(): Promise<Map<string, Tag>> {
-        if ( !this._allTags ) {
-            this._allTags = new Map<string, Tag>();
-
-            await this.base.table('Tags').select({
-                    view: "General"
-            }).all().then(tags => {
-                let tagObjects = tags.map( t => new Tag(t));
-                tagObjects.forEach(t => this._allTags.set(t.airtable_id, t));
-            });
-        }
-
-        return this._allTags;
-    }
-
     private async getMentorByField(fieldName: string, fieldValue: any) : Promise<Mentor> {
         return this.base.table('Mentors').select({
             maxRecords: 1,
@@ -171,34 +146,6 @@ export class AirtableBase implements MentorStorage {
             this._mentorsCache.set(chatId, mentor);
             return mentor;
         });
-    }
-
-    public async setMentorPrice(mentor: Mentor, price: MentorPrice): Promise<Mentor> {
-        if (!mentor) return;
-        return this.updateMentorField(mentor, 'Price', price.toString());
-    }
-
-    public async setMentorDescription(mentor: Mentor, newDescription: string): Promise<Mentor> {
-        if (!mentor) return;
-
-        return this.updateMentorField(mentor, 'Details', newDescription);
-    }
-
-    public async setMentorTitle(mentor: Mentor, newDescription: string): Promise<Mentor> {
-        if (!mentor) return;
-
-        const jobs = newDescription.split('@');
-        let fields = {};
-        fields["JobTitle"] = jobs[0];
-        fields["Workplace"] = jobs.length > 0 ? jobs[1] : '-';
-
-        return this.updateMentorFields(mentor, fields);
-    }
-
-    public async setMentorCalendar(mentor: Mentor, newCalendar: string): Promise<Mentor> {
-        if (!mentor) return;
-
-        return this.updateMentorField(mentor, 'Calendly Url', newCalendar);
     }
 
     public async setRequestStatus(request: MentorClientRequest, newStatus: MentorClientRequestStatus): Promise<MentorClientRequest> {
