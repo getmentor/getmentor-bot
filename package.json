@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@sendgrid/mail": "^7.6.0",
-    "@sentry/node": "^6.14.1",
+    "@sentry/node": "^6.16.1",
     "airtable": "^0.11.1",
     "applicationinsights": "^2.1.8",
     "mixpanel": "^0.14.0",
