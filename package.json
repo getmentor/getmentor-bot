@@ -17,7 +17,7 @@
     "mixpanel": "^0.14.0",
     "node-cache": "^5.1.2",
     "telegraf": "^4.4.2",
-    "telegraf-inline-menu": "^6.2.1",
+    "telegraf-inline-menu": "^6.3.0",
     "telegram-format": "^2.0.2"
   },
   "devDependencies": {
