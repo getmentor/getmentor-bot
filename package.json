@@ -10,15 +10,15 @@
     "test": "echo \"No tests yet...\""
   },
   "dependencies": {
-    "@sendgrid/mail": "^7.6.0",
+    "@sendgrid/mail": "^7.6.2",
     "@sentry/node": "^6.19.6",
-    "airtable": "^0.11.1",
+    "airtable": "^0.11.3",
     "applicationinsights": "^2.3.1",
     "mixpanel": "^0.14.0",
     "node-cache": "^5.1.2",
     "telegraf": "^4.4.2",
-    "telegraf-inline-menu": "^6.2.1",
-    "telegram-format": "^2.0.2"
+    "telegraf-inline-menu": "^6.3.0",
+    "telegram-format": "^2.1.0"
   },
   "devDependencies": {
     "@azure/functions": "^3.0.0",
