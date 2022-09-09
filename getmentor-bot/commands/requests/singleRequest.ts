@@ -9,6 +9,8 @@ import { SessionCompleteMessage } from "../../sendgrid/messages/SessionCompleteM
 import { SessionDeclinedMessage } from "../../sendgrid/messages/SessionDeclinedMessage";
 import { mixpanel } from "../../utils/mixpanel";
 
+const fetch = require('node-fetch');
+
 export function singleRequestSubmenu(): MenuTemplate<MentorContext> {
     const singleRequestSubmenu = new MenuTemplate<MentorContext>(ctx => {
         return {
