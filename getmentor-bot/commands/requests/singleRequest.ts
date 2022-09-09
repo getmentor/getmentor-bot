@@ -124,6 +124,7 @@ async function setNewStatus(ctx: MentorContext, newStatus: MentorClientRequestSt
         if (newRequest.status === MentorClientRequestStatus.done) {
             SendGridEmailSender.send(new SessionCompleteMessage(ctx.mentor, newRequest));
             await ctx.replyWithHTML(stringsSingleRequest.requestCompletedByMentor(ctx.mentor, newRequest))
+            fetch(`${process.env.GETMENTOR_DOMAIN}/api/revalidate?secret=${process.env.REVALIDATE_SECRET_TOKEN}&slug=${ctx.mentor.alias}`);
         }
         if (newRequest.status === MentorClientRequestStatus.declined) {
             SendGridEmailSender.send(new SessionDeclinedMessage(ctx.mentor, newRequest));
