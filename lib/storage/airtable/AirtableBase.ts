@@ -154,6 +154,8 @@ export class AirtableBase implements MentorStorage {
         }
 
         let newRequest = await this.updateMentorRequestField(request, 'Status', MentorClientRequestStatus[newStatus], this._activeRequestsCache);
+        let now = new Date(Date.now());
+        await this.updateMentorRequestField(request, 'Last Status Change', now.toDateString(), this._activeRequestsCache);
 
         // Some mumbo jumbo when changing status to done or declined
         if (   newRequest.status === MentorClientRequestStatus.done
