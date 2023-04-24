@@ -24,5 +24,9 @@ export function mainMenu(): MenuTemplate<MentorContext> {
         return ctx.mentor ? ctx.mentor.url : 'https://getmentor.dev';
     });
 
+    menu.url('💬 Закрытый чат менторов', (ctx) => {
+        return process.env["TG_MENTORS_CHAT_LINK"];
+    });
+
     return menu;
 }
