@@ -1,7 +1,6 @@
 import { Mentor } from "../../lib/models/Mentor";
 import { stringsCommon } from "./common";
 import {html as format} from 'telegram-format';
-import { MentorUtils } from "../../lib/utils/MentorUtils";
 
 export const stringsCode = {
     unknown: () => {
@@ -12,6 +11,9 @@ export const stringsCode = {
 return `Привет ${mentor.name}!
 
 Спасибо, что присоединились к нашей команде менторов!
+
+Не забудь также добавиться в наш закрытый чат менторов: ${process.env["TG_MENTORS_CHAT_LINK"]}, там часто бывают классные обсуждения.
+
 Для управления своим профилем и работой с заявками, напишите мне команду /menu.
         
 Вот информация, которую мы о вас знаем:
@@ -21,9 +23,6 @@ ${format.escape(mentor.job)}
 
 ${format.bold('Компания')}
 ${format.escape(mentor.workplace)}
-
-${format.bold('Чем можете помочь')}
-${format.escape(mentor.details.substr(0, 3500))}
         
 ${format.bold('Опыт')}
 ${mentor.experience}
