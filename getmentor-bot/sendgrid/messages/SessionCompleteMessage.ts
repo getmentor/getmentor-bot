@@ -13,7 +13,8 @@ export class SessionCompleteMessage extends EmailMessage {
             'mentor_name': this._mentor.name,
             'mentee_name_url': encodeURI(this._request.name),
             'mentee_email_url': encodeURI(this._request.email),
-            'mentor_name_url': encodeURI(this._mentor.name)
+            'mentor_name_url': encodeURI(this._mentor.name),
+            'request_id': this._request.id
         }
     }
 }
