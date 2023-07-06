@@ -45,7 +45,8 @@ ${format.monospace(format.escape(request.details.substring(0, 3500)))}`
         
 ${format.url(' = Опрос тут = ', 'https://docs.google.com/forms/d/e/1FAIpQLSd7Z7hCBVRIkTggDaiO7LmWTIY8IZiH4YsSYUNajf-yl-bH2w/viewform?usp=pp_url&entry.1704286527='+encodeURI(mentor.name)+'&entry.1855614712='+encodeURI(mentor.email)+'&entry.661937121='+encodeURI(request.name)+'&entry.1372017714=%D0%94%D0%B0')}
         
-${format.italic('Ссылка на обратную связь о сессии была отправлена на почту вашему менти, поэтому напомните ему/ей об этом, если хотите получить отзыв.')}
+${format.italic('Ссылка на обратную связь о сессии была отправлена на почту вашему менти, поэтому напомните ему/ей об этом, если хотите получить отзыв. Вот она:')}
+${format.url('Обратная связь для менти', request.review_url)}
         
 ${format.bold('Поддержите проект')}
 ${ donateText }

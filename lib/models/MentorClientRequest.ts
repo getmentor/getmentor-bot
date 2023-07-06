@@ -24,6 +24,7 @@ export class MentorClientRequest {
     review: string;
     status: MentorClientRequestStatus;
     mentorId: string;
+    review_url: string;
 
     constructor(record: MentorStorageRecord) {
         this.id = record.id;
@@ -41,5 +42,6 @@ export class MentorClientRequest {
         this.scheduledAt = new Date(record.get("Scheduled At"));
         this.statusChangedAt = new Date(record.get("Last Status Change"));
         this.mentorId = record.get("Mentor")[0];
+        this.review_url = record.get("ReviewFormUrl");
     };
 };
