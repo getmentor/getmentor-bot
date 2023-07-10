@@ -79,12 +79,14 @@ export class AirtableBase implements MentorStorage {
             "Description",
             "Level",
             "Review",
+            "Review2",
             "Status",
             "Created Time",
             "Last Modified Time",
             "Scheduled At",
             "Last Status Change",
-            "Mentor"
+            "Mentor",
+            "ReviewFormUrl"
         ];
 
         if (!requests ) {
