@@ -7,7 +7,7 @@ export function makeRequestsMenu(): MenuTemplate<MentorContext> {
     const allRequestsMenu = new MenuTemplate<MentorContext>('Ваши заявки');
 
     // Active requests
-    const activeRequestsMenu = new MenuTemplate<MentorContext>('Ваши текушие заявки')
+    const activeRequestsMenu = new MenuTemplate<MentorContext>('Ваши текущие заявки')
     activeRequestsMenu.chooseIntoSubmenu('request', 
         (ctx) => {
             return Array.from(ctx.mentor.requests.keys())
