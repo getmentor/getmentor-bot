@@ -4,7 +4,7 @@ import { EmailMessage } from "./EmailMessage";
 
 export class SessionCompleteMessage extends EmailMessage {
     public constructor(mentor: Mentor, request: MentorClientRequest){
-        super(mentor, request, 'd-751b5a275d424812b08bee19a20d1972');
+        super(mentor, request, 'session-complete');
     }
 
     public props() {

@@ -10,6 +10,7 @@
     "test": "echo \"No tests yet...\""
   },
   "dependencies": {
+    "@aws-sdk/client-sesv2": "^3.950.0",
     "@sendgrid/mail": "^7.6.2",
     "@sentry/node": "^6.19.6",
     "airtable": "^0.11.3",

@@ -1,11 +1,14 @@
 {
   "compilerOptions": {
     "module": "commonjs",
-    "target": "es6",
+    "target": "es2020",
     "outDir": "dist",
     "rootDir": ".",
     "sourceMap": true,
     "strict": false,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "skipLibCheck": true,
+    "lib": ["es2020"]
   }
 }

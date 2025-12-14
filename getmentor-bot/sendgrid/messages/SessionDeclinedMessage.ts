@@ -4,7 +4,7 @@ import { EmailMessage } from "./EmailMessage";
 
 export class SessionDeclinedMessage extends EmailMessage {
     public constructor(mentor: Mentor, request: MentorClientRequest){
-        super(mentor, request, 'd-760b407e1f694442805abb931bd055b0');
+        super(mentor, request, 'session-declined');
     }
 
     public props() {
