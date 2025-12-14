@@ -4,7 +4,7 @@ import { MentorContext } from "../../bot/MentorContext";
 import { MentorClientRequestStatus } from "../../../lib/models/MentorClientRequest";
 import { stringsSingleRequest } from "../../strings/singleRequest";
 import { MentorUtils } from "../../../lib/utils/MentorUtils";
-import { SendGridEmailSender } from "../../sendgrid/SendGridEmailSender"
+import { EmailSender } from "../../email/EmailSender"
 import { SessionCompleteMessage } from "../../sendgrid/messages/SessionCompleteMessage";
 import { SessionDeclinedMessage } from "../../sendgrid/messages/SessionDeclinedMessage";
 import { mixpanel } from "../../utils/mixpanel";
@@ -124,12 +124,12 @@ async function setNewStatus(ctx: MentorContext, newStatus: MentorClientRequestSt
             ctx.mentor.archivedRequests?.set(newRequest.id, newRequest);
         }
         if (newRequest.status === MentorClientRequestStatus.done) {
-            SendGridEmailSender.send(new SessionCompleteMessage(ctx.mentor, newRequest));
+            EmailSender.send(new SessionCompleteMessage(ctx.mentor, newRequest));
             await ctx.replyWithHTML(stringsSingleRequest.requestCompletedByMentor(ctx.mentor, newRequest))
             // fetch(`${process.env.GETMENTOR_DOMAIN}/api/revalidate?secret=${process.env.REVALIDATE_SECRET_TOKEN}&slug=${ctx.mentor.alias}`);
         }
         if (newRequest.status === MentorClientRequestStatus.declined) {
-            SendGridEmailSender.send(new SessionDeclinedMessage(ctx.mentor, newRequest));
+            EmailSender.send(new SessionDeclinedMessage(ctx.mentor, newRequest));
             await ctx.replyWithHTML(stringsSingleRequest.requestDeclinedByMentor)
         }
 
