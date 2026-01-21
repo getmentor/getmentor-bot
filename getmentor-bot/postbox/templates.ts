@@ -18,7 +18,7 @@ export interface EmailTemplate {
 export const EMAIL_TEMPLATES: Record<string, EmailTemplate> = {
     /**
      * Session Complete - Sent when a mentoring session is marked as complete
-     * Variables: first_name, mentor_name, mentee_name_url, mentee_email_url, mentor_name_url, request_id
+     * Variables: first_name, mentor_name, request_id
      */
     'session-complete': SESSION_COMPLETE_TEMPLATE,
 
