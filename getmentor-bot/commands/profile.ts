@@ -21,6 +21,12 @@ export function makeEditProfileMenu(): MenuTemplate<MentorContext> {
         hide: (ctx) => process.env.SHOW_EDIT_PROFILE_ONLINE ? false : true
     });
 
+    profileMenu.url('🔗 Редактировать профиль онлайн', (ctx) => {
+        return `${stringsCommon.baseUrl}/mentor/profile/edit`
+    }, {
+        hide: (ctx) => process.env.ENABLE_MENTOR_ADMIN_SECTION ? false : true
+    });
+
     // Tags
     // makeTagsMenu(profileMenu);
 

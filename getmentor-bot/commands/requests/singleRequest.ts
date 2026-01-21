@@ -8,6 +8,7 @@ import { EmailSender } from "../../email/EmailSender"
 import { SessionCompleteMessage } from "../../sendgrid/messages/SessionCompleteMessage";
 import { SessionDeclinedMessage } from "../../sendgrid/messages/SessionDeclinedMessage";
 import { mixpanel } from "../../utils/mixpanel";
+import { stringsCommon } from "../../strings/common";
 
 const fetch = require('node-fetch');
 
@@ -18,6 +19,13 @@ export function singleRequestSubmenu(): MenuTemplate<MentorContext> {
             parse_mode: "HTML"
         }
     })
+
+    singleRequestSubmenu.url('🔗 Открыть заявку в админке', (ctx) => {
+        const id = ctx.match![1]!;
+        return `${stringsCommon.baseUrl}/mentor/requests/${id}`
+    }, {
+        hide: (ctx) => process.env.ENABLE_MENTOR_ADMIN_SECTION ? false : true
+    });
 
     // Active requests menu
     singleRequestSubmenu.interact(stringsSingleRequest.buttonContacted, 'contacted', {
