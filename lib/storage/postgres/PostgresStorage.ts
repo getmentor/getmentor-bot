@@ -26,27 +26,20 @@ class PgRowAdapter implements MentorStorageRecord {
         'JobTitle': 'job_title',
         'Workplace': 'workplace',
         'Details': 'details',
-        'Profile Url': 'profile_url',
         'TgSecret': 'tg_secret',
         'Alias': 'slug',
-        'Tags Links': 'tags_links',
-        'Tags': 'tags',
-        'Image': 'image',
         'Experience': 'experience',
-        'Calendly Url': 'calendly_url',
-        'AuthToken': 'auth_token',
+        'Calendly Url': 'calendar_url',
+        'AuthToken': 'login_token',
 
         // Client Request fields
         'Description': 'description',
         'Level': 'level',
-        'Review': 'review',
-        'Review2': 'review2',
         'Created Time': 'created_at',
         'Last Modified Time': 'updated_at',
         'Scheduled At': 'scheduled_at',
-        'Last Status Change': 'last_status_change',
+        'Last Status Change': 'status_changed_at',
         'Mentor': 'mentor_id',
-        'ReviewFormUrl': 'review_form_url',
     };
 
     constructor(row: any) {
@@ -220,7 +213,7 @@ export class PostgresStorage implements MentorStorage {
 
         // Update status
         let result = await this.pool.query(
-            'UPDATE client_requests SET status = $1, last_status_change = NOW() WHERE id = $2 RETURNING *',
+            'UPDATE client_requests SET status = $1, status_changed_at = NOW() WHERE id = $2 RETURNING *',
             [MentorClientRequestStatus[newStatus], request.id]
         );
 
