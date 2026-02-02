@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a Telegram bot for the GetMentor platform, running as an Azure Function. The bot allows mentors to manage client requests, update their profiles, and receive notifications about new mentorship opportunities. It uses Airtable as the backend database and integrates with SendGrid for email notifications.
+This is a Telegram bot for the GetMentor platform, running as an Azure Function. The bot allows mentors to manage client requests, update their profiles, and receive notifications about new mentorship opportunities. It uses PostgreSQL as the backend database and integrates with SendGrid for email notifications.
 
 ## Development Commands
 
@@ -29,29 +29,30 @@ The main Azure Function HTTP trigger is in `getmentor-bot/index.ts`. It:
 ### Bot Structure
 The Telegraf bot is configured with:
 - **Session middleware** - Tracks user state across interactions
-- **Common middleware** (`commonMiddleware`) - Attaches Airtable storage and loads mentor data into context
+- **Common middleware** (`commonMiddleware`) - Attaches PostgreSQL storage and loads mentor data into context
 - **Anonymous blocking** (`blockAnonymousMiddleware`) - Prevents access for users not registered as mentors
 - **Menu system** (`telegraf-inline-menu`) - Interactive keyboard-based navigation
 
 ### Context Extension
 The custom `MentorContext` extends Telegraf's context with:
-- `storage: MentorStorage` - Airtable database interface
+- `storage: MentorStorage` - PostgreSQL database interface
 - `mentor: Mentor` - Currently authenticated mentor
 - `session` - Pagination state for requests/tags
 
 ### Data Layer
 **MentorStorage Interface** (`lib/storage/MentorStorage.ts`):
 - Defines methods for mentor and request operations
-- Implemented by `AirtableBase` class
+- Implemented by `PostgresStorage` class
 
-**AirtableBase** (`lib/storage/airtable/AirtableBase.ts`):
-- Manages Airtable API interactions
+**PostgresStorage** (`lib/storage/postgres/PostgresStorage.ts`):
+- Manages PostgreSQL database interactions via pgx connection pool
 - Implements three-tier caching with `node-cache`:
   - Mentors: 10 min TTL
   - Active requests: 10 min TTL
   - Archived requests: 100 min TTL
 - Handles cache invalidation on status changes
 - Swaps requests between active/archived caches based on status
+- Uses `pgRowAdapter` to convert PostgreSQL rows to expected record format
 
 ### Data Models
 **Mentor** (`lib/models/Mentor.ts`):
@@ -95,8 +96,7 @@ SendGrid integration in `getmentor-bot/sendgrid/`:
 Required in `local.settings.json` for local development:
 - `TELEGRAM_BOT_TOKEN` - Telegram bot API token
 - `WEBHOOK_ADDRESS` - Webhook URL for Telegram
-- `AIRTABLE_API_KEY` - Airtable API key
-- `AIRTABLE_BASE_ID` - Airtable base ID
+- `DATABASE_URL` - PostgreSQL connection string
 - `TG_MENTORS_CHAT_LINK` - Link to private mentors chat
 
 ## Important Notes
@@ -104,8 +104,8 @@ Required in `local.settings.json` for local development:
 ### Authentication Flow
 1. User starts bot with `/start`
 2. Bot prompts for 8-character secret code
-3. Code is matched against Airtable `TgSecret` field
-4. On success, `Telegram Chat Id` is saved to Airtable
+3. Code is matched against database `tg_secret` field in mentors table
+4. On success, `telegram_chat_id` is saved to database
 5. Mentor data is cached for subsequent requests
 
 ### Request Status Transitions
@@ -113,12 +113,12 @@ Status changes automatically move requests between caches:
 - Active cache: `pending`, `contacted`, `working`, `reschedule`
 - Archived cache: `done`, `declined`, `unavailable`
 
-The `setRequestStatus` method in `AirtableBase` handles cache swapping and updates `Last Status Change` timestamp.
+The `setRequestStatus` method in `PostgresStorage` handles cache swapping and updates the `last_status_change` timestamp in the database.
 
-### Airtable Schema
-The bot expects these Airtable tables:
-- **Mentors** table with fields: Name, Email, JobTitle, Workplace, Details, Profile Url, Alias, Id, TgSecret, Telegram, Telegram Chat Id, Price, Status, Tags Links, Tags, Image, Experience, Calendly Url, AuthToken
-- **Client Requests** table with fields: Name, Email, Telegram, Description, Level, Review, Review2, Status, Created Time, Last Modified Time, Scheduled At, Last Status Change, Mentor, ReviewFormUrl
+### PostgreSQL Schema
+The bot expects these PostgreSQL tables:
+- **mentors** table with columns: id (UUID), name, email, job_title, workplace, details, slug, legacy_id, tg_secret, telegram, telegram_chat_id, price, status, image, experience, calendar_url, auth_token, sort_order, created_at, updated_at
+- **client_requests** table with columns: id (UUID), mentor_id (UUID FK), name, email, telegram, description, level, review, status, created_at, modified_at, scheduled_at, last_status_change, review_form_url, decline_reason, decline_comment
 
 ### Localization
 All user-facing strings are in Russian and located in `getmentor-bot/strings/` directory.
