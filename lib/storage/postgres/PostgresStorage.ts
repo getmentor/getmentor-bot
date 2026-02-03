@@ -48,6 +48,22 @@ class PgRowAdapter implements MentorStorageRecord {
     }
 
     get(fieldName: string): any {
+        // Handle computed fields
+        if (fieldName === 'Profile Url') {
+            const slug = this.row['slug'];
+            return slug ? `https://getmentor.dev/mentor/${slug}` : undefined;
+        }
+        if (fieldName === 'Tags') {
+            return this.row['tags_joined'] || '';
+        }
+        if (fieldName === 'Image') {
+            const slug = this.row['slug'];
+            return slug ? { url: `https://${process.env.AZURE_STORAGE_DOMAIN}/${slug}/large` } : {};
+        }
+        if (fieldName === 'ReviewFormUrl') {
+            return `https://getmentor.dev/review/${this.row['id']}`;
+        }
+
         const pgColumn = PgRowAdapter.fieldMapping[fieldName];
         if (pgColumn) {
             const value = this.row[pgColumn];
@@ -91,7 +107,16 @@ export class PostgresStorage implements MentorStorage {
 
         if (!mentor) {
             const result = await this.pool.query(
-                'SELECT * FROM mentors WHERE telegram_chat_id = $1',
+                `SELECT m.*,
+                        COALESCE(
+                          (SELECT string_agg(t.name, ', ')
+                           FROM mentor_tags mt
+                           JOIN tags t ON t.id = mt.tag_id
+                           WHERE mt.mentor_id = m.id),
+                          ''
+                        ) AS tags_joined
+                 FROM mentors m
+                 WHERE m.telegram_chat_id = $1`,
                 [chatId]
             );
 
@@ -106,7 +131,16 @@ export class PostgresStorage implements MentorStorage {
 
     public async getMentorBySecretCode(code: string): Promise<Mentor> {
         const result = await this.pool.query(
-            'SELECT * FROM mentors WHERE tg_secret = $1',
+            `SELECT m.*,
+                    COALESCE(
+                      (SELECT string_agg(t.name, ', ')
+                       FROM mentor_tags mt
+                       JOIN tags t ON t.id = mt.tag_id
+                       WHERE mt.mentor_id = m.id),
+                      ''
+                    ) AS tags_joined
+             FROM mentors m
+             WHERE m.tg_secret = $1`,
             [code]
         );
 
@@ -146,10 +180,14 @@ export class PostgresStorage implements MentorStorage {
 
         if (!requests) {
             const result = await this.pool.query(
-                `SELECT * FROM client_requests
-                 WHERE mentor_id = $1
-                 AND status NOT IN ('done', 'declined', 'unavailable')
-                 ORDER BY created_at ASC`,
+                `SELECT cr.*,
+                        r.mentor_review as review,
+                        r.platform_review as review2
+                 FROM client_requests cr
+                 LEFT JOIN reviews r ON r.client_request_id = cr.id
+                 WHERE cr.mentor_id = $1
+                 AND cr.status NOT IN ('done', 'declined', 'unavailable')
+                 ORDER BY cr.created_at ASC`,
                 [mentor.id]
             );
 
@@ -170,10 +208,14 @@ export class PostgresStorage implements MentorStorage {
 
         if (!requests) {
             const result = await this.pool.query(
-                `SELECT * FROM client_requests
-                 WHERE mentor_id = $1
-                 AND status NOT IN ('pending', 'working', 'contacted')
-                 ORDER BY updated_at DESC`,
+                `SELECT cr.*,
+                        r.mentor_review as review,
+                        r.platform_review as review2
+                 FROM client_requests cr
+                 LEFT JOIN reviews r ON r.client_request_id = cr.id
+                 WHERE cr.mentor_id = $1
+                 AND cr.status NOT IN ('pending', 'working', 'contacted')
+                 ORDER BY cr.updated_at DESC`,
                 [mentor.id]
             );
 
