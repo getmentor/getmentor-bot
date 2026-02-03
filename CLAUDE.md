@@ -45,14 +45,14 @@ The custom `MentorContext` extends Telegraf's context with:
 - Implemented by `PostgresStorage` class
 
 **PostgresStorage** (`lib/storage/postgres/PostgresStorage.ts`):
-- Manages PostgreSQL database interactions via pgx connection pool
+- Manages PostgreSQL database interactions via pg connection pool
 - Implements three-tier caching with `node-cache`:
   - Mentors: 10 min TTL
   - Active requests: 10 min TTL
   - Archived requests: 100 min TTL
 - Handles cache invalidation on status changes
 - Swaps requests between active/archived caches based on status
-- Uses `pgRowAdapter` to convert PostgreSQL rows to expected record format
+- Uses `pgRowAdapter` to convert PostgreSQL rows to application record format
 
 ### Data Models
 **Mentor** (`lib/models/Mentor.ts`):
