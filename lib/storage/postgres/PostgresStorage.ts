@@ -106,8 +106,9 @@ export class PostgresStorage implements MentorStorage {
                            databaseUrl.includes('sslmode=verify-ca');
 
         if (requiresSSL) {
-            // Load CA certificate from certs directory
-            const certPath = join(__dirname, '..', '..', '..', 'certs', 'yandex-ca.pem');
+            // Load CA certificate from certs directory (project root)
+            // Use process.cwd() instead of __dirname to handle compiled dist/ structure
+            const certPath = join(process.cwd(), 'certs', 'yandex-ca.pem');
             const ca = readFileSync(certPath, 'utf-8');
 
             const sslConfig: any = {
