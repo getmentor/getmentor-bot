@@ -1,4 +1,6 @@
 import { Pool } from 'pg';
+import { readFileSync } from 'fs';
+import { join } from 'path';
 import { Mentor, MentorStatus } from "../../models/Mentor";
 import { MentorClientRequest, MentorClientRequestStatus } from "../../models/MentorClientRequest";
 import { MentorStorage, MentorStorageRecord } from "../MentorStorage";
@@ -93,9 +95,25 @@ export class PostgresStorage implements MentorStorage {
     _archivedRequestsCache: NodeCache;
 
     constructor(databaseUrl: string) {
-        this.pool = new Pool({
+        const poolConfig: any = {
             connectionString: databaseUrl,
-        });
+        };
+
+        // Configure TLS for Yandex Cloud Managed PostgreSQL
+        const tlsServerName = process.env.DATABASE_TLS_SERVER_NAME;
+        if (tlsServerName) {
+            // Load CA certificate from certs directory
+            const certPath = join(__dirname, '..', '..', '..', 'certs', 'yandex-ca.pem');
+            const ca = readFileSync(certPath, 'utf-8');
+
+            poolConfig.ssl = {
+                rejectUnauthorized: true,
+                ca: ca,
+                servername: tlsServerName,
+            };
+        }
+
+        this.pool = new Pool(poolConfig);
 
         this._mentorsCache = new NodeCache({ stdTTL: 600, checkperiod: 60 });
         this._activeRequestsCache = new NodeCache({ stdTTL: 600, checkperiod: 60 });
