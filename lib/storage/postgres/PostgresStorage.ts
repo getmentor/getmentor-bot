@@ -100,17 +100,29 @@ export class PostgresStorage implements MentorStorage {
         };
 
         // Configure TLS for Yandex Cloud Managed PostgreSQL
-        const tlsServerName = process.env.DATABASE_TLS_SERVER_NAME;
-        if (tlsServerName) {
+        // Automatically enabled if DATABASE_URL contains sslmode parameter
+        const requiresSSL = databaseUrl.includes('sslmode=require') ||
+                           databaseUrl.includes('sslmode=verify-full') ||
+                           databaseUrl.includes('sslmode=verify-ca');
+
+        if (requiresSSL) {
             // Load CA certificate from certs directory
             const certPath = join(__dirname, '..', '..', '..', 'certs', 'yandex-ca.pem');
             const ca = readFileSync(certPath, 'utf-8');
 
-            poolConfig.ssl = {
+            const sslConfig: any = {
                 rejectUnauthorized: true,
                 ca: ca,
-                servername: tlsServerName,
             };
+
+            // Optional: Override servername if cert name differs from connection hostname
+            // Only needed if you get "certificate is valid for X, not Y" errors
+            const tlsServerName = process.env.DATABASE_TLS_SERVER_NAME;
+            if (tlsServerName) {
+                sslConfig.servername = tlsServerName;
+            }
+
+            poolConfig.ssl = sslConfig;
         }
 
         this.pool = new Pool(poolConfig);
