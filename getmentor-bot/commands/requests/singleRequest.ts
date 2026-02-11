@@ -182,15 +182,6 @@ function reviewSubmenu(): MenuTemplate<MentorContext> {
     const confirmDeclineMenu = new MenuTemplate<MentorContext>(ctx => {
         const id = ctx.match![1]!;
         let request = ctx.mentor.archivedRequests?.get(id);
-        if (request && request.review) {
-            return `${request.name} оставил следующий отзыв о вашей встрече:
-
------
-${request.review}
------
-
-Надеемся, что он поможет вам стать лучше. Удачи!`
-        } else 'Отзыва нет';
 
         mixpanel.track('request_view_review', {
             distinct_id: ctx.chat.id,
@@ -199,6 +190,16 @@ ${request.review}
             request_id: request.id,
             request_name: request.name
         })
+
+        if (request && request.review) {
+            return `${request.name} оставил следующий отзыв о вашей встрече:
+
+-----
+${request.review}
+-----
+
+Надеемся, что он поможет вам стать лучше. Удачи!`
+        } else return 'Отзыва нет';
     });
 
     confirmDeclineMenu.manualRow(backButtons);
