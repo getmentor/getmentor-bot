@@ -30,7 +30,7 @@ export class MentorClientRequest {
         this.id = record.id;
         this.name = record.get("Name");
         this.email = record.get("Email");
-        this.telegram = (record.get("Telegram") as string).replace('@','') || '-';
+        this.telegram = (record.get("Telegram") as string)?.replace('@','') || '-';
         this.details = record.get("Description");
         this.level = record.get("Level");
         const review = record.get("Review") as string;
