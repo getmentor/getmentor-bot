@@ -217,7 +217,7 @@ export class PostgresStorage implements MentorStorage {
                  FROM client_requests cr
                  LEFT JOIN reviews r ON r.client_request_id = cr.id
                  WHERE cr.mentor_id = $1
-                 AND cr.status NOT IN ('done', 'declined', 'unavailable')
+                 AND cr.status NOT IN ('done', 'declined', 'unavailable', 'reschedule')
                  ORDER BY cr.created_at ASC`,
                 [mentor.id]
             );
