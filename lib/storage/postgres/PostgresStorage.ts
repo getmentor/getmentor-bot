@@ -106,6 +106,12 @@ export class PostgresStorage implements MentorStorage {
                            databaseUrl.includes('sslmode=verify-ca');
 
         if (requiresSSL) {
+            // Strip sslmode parameter from connection string — node-postgres doesn't
+            // support libpq's sslmode and will ignore our ssl config if it's present
+            poolConfig.connectionString = poolConfig.connectionString.replace(/[?&]sslmode=[^&]*/g, (match) =>
+                match.startsWith('?') ? '?' : ''
+            ).replace(/\?$/, '').replace(/\?&/, '?');
+
             // Load CA certificate from certs directory (project root)
             // Use process.cwd() instead of __dirname to handle compiled dist/ structure
             const certPath = join(process.cwd(), 'certs', 'yandex-ca.pem');
@@ -128,13 +134,13 @@ export class PostgresStorage implements MentorStorage {
 
         this.pool = new Pool(poolConfig);
 
-        this._mentorsCache = new NodeCache({ stdTTL: 600, checkperiod: 60 });
-        this._activeRequestsCache = new NodeCache({ stdTTL: 600, checkperiod: 60 });
-        this._archivedRequestsCache = new NodeCache({ stdTTL: 6000, checkperiod: 600 });
+        this._mentorsCache = new NodeCache({ stdTTL: 60, checkperiod: 10 });
+        this._activeRequestsCache = new NodeCache({ stdTTL: 60, checkperiod: 10 });
+        this._archivedRequestsCache = new NodeCache({ stdTTL: 600, checkperiod: 60 });
     }
 
     public async getMentorByTelegramId(chatId: number | string): Promise<Mentor> {
-        let mentor = this._mentorsCache.get(chatId) as Mentor;
+        let mentor = process.env.DISABLE_MENTORS_CACHE ? undefined : this._mentorsCache.get(chatId) as Mentor;
 
         if (!mentor) {
             const result = await this.pool.query(
@@ -207,7 +213,9 @@ export class PostgresStorage implements MentorStorage {
     }
 
     public async getMentorActiveRequests(mentor: Mentor): Promise<Map<string, MentorClientRequest>> {
-        let requests = this._activeRequestsCache.get(mentor.id) as Map<string, MentorClientRequest>;
+        let requests = process.env.DISABLE_MENTORS_CACHE
+            ? undefined
+            : this._activeRequestsCache.get(mentor.id) as Map<string, MentorClientRequest>;
 
         if (!requests) {
             const result = await this.pool.query(
@@ -235,7 +243,9 @@ export class PostgresStorage implements MentorStorage {
     }
 
     public async getMentorArchivedRequests(mentor: Mentor): Promise<Map<string, MentorClientRequest>> {
-        let requests = this._archivedRequestsCache.get(mentor.id) as Map<string, MentorClientRequest>;
+        let requests = process.env.DISABLE_MENTORS_CACHE
+            ? undefined
+            : this._archivedRequestsCache.get(mentor.id) as Map<string, MentorClientRequest>;
 
         if (!requests) {
             const result = await this.pool.query(
