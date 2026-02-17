@@ -42,6 +42,10 @@ class PgRowAdapter implements MentorStorageRecord {
         'Scheduled At': 'scheduled_at',
         'Last Status Change': 'status_changed_at',
         'Mentor': 'mentor_id',
+
+        // Review fields (aliased in SQL queries)
+        'Review': 'review',
+        'Review2': 'review2',
     };
 
     constructor(row: any) {
@@ -63,7 +67,7 @@ class PgRowAdapter implements MentorStorageRecord {
             return slug ? { url: `https://${process.env.AZURE_STORAGE_DOMAIN}/${slug}/large` } : {};
         }
         if (fieldName === 'ReviewFormUrl') {
-            return `https://getmentor.dev/review/${this.row['id']}`;
+            return `https://getmentor.dev/reviews/new?request_id=${this.row['id']}`;
         }
 
         const pgColumn = PgRowAdapter.fieldMapping[fieldName];
