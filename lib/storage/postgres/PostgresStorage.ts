@@ -143,8 +143,12 @@ export class PostgresStorage implements MentorStorage {
         this._archivedRequestsCache = new NodeCache({ stdTTL: 600, checkperiod: 60 });
     }
 
+    private get cacheEnabled(): boolean {
+        return !process.env.DISABLE_MENTORS_CACHE;
+    }
+
     public async getMentorByTelegramId(chatId: number | string): Promise<Mentor> {
-        let mentor = process.env.DISABLE_MENTORS_CACHE ? undefined : this._mentorsCache.get(chatId) as Mentor;
+        let mentor = this.cacheEnabled ? this._mentorsCache.get(chatId) as Mentor : undefined;
 
         if (!mentor) {
             const result = await this.pool.query(
@@ -163,7 +167,7 @@ export class PostgresStorage implements MentorStorage {
 
             if (result.rows.length > 0) {
                 mentor = new Mentor(new PgRowAdapter(result.rows[0]));
-                this._mentorsCache.set(chatId, mentor);
+                if (this.cacheEnabled) this._mentorsCache.set(chatId, mentor);
             }
         }
 
@@ -190,7 +194,7 @@ export class PostgresStorage implements MentorStorage {
         }
 
         const mentor = new Mentor(new PgRowAdapter(result.rows[0]));
-        if (mentor && mentor.tg_chat_id) {
+        if (mentor && mentor.tg_chat_id && this.cacheEnabled) {
             this._mentorsCache.set(mentor.tg_chat_id, mentor);
         }
 
@@ -211,15 +215,15 @@ export class PostgresStorage implements MentorStorage {
         }
 
         const newMentor = new Mentor(new PgRowAdapter(result.rows[0]));
-        this._mentorsCache.set(newMentor.tg_chat_id, newMentor);
+        if (this.cacheEnabled) this._mentorsCache.set(newMentor.tg_chat_id, newMentor);
 
         return newMentor;
     }
 
     public async getMentorActiveRequests(mentor: Mentor): Promise<Map<string, MentorClientRequest>> {
-        let requests = process.env.DISABLE_MENTORS_CACHE
-            ? undefined
-            : this._activeRequestsCache.get(mentor.id) as Map<string, MentorClientRequest>;
+        let requests = this.cacheEnabled
+            ? this._activeRequestsCache.get(mentor.id) as Map<string, MentorClientRequest>
+            : undefined;
 
         if (!requests) {
             const result = await this.pool.query(
@@ -240,16 +244,16 @@ export class PostgresStorage implements MentorStorage {
                 requests.set(req.id, req);
             });
 
-            this._activeRequestsCache.set(mentor.id, requests);
+            if (this.cacheEnabled) this._activeRequestsCache.set(mentor.id, requests);
         }
 
         return requests;
     }
 
     public async getMentorArchivedRequests(mentor: Mentor): Promise<Map<string, MentorClientRequest>> {
-        let requests = process.env.DISABLE_MENTORS_CACHE
-            ? undefined
-            : this._archivedRequestsCache.get(mentor.id) as Map<string, MentorClientRequest>;
+        let requests = this.cacheEnabled
+            ? this._archivedRequestsCache.get(mentor.id) as Map<string, MentorClientRequest>
+            : undefined;
 
         if (!requests) {
             const result = await this.pool.query(
@@ -270,7 +274,7 @@ export class PostgresStorage implements MentorStorage {
                 requests.set(req.id, req);
             });
 
-            this._archivedRequestsCache.set(mentor.id, requests);
+            if (this.cacheEnabled) this._archivedRequestsCache.set(mentor.id, requests);
         }
 
         return requests;
@@ -287,7 +291,7 @@ export class PostgresStorage implements MentorStorage {
         }
 
         const mentor = new Mentor(new PgRowAdapter(result.rows[0]));
-        this._mentorsCache.set(chatId, mentor);
+        if (this.cacheEnabled) this._mentorsCache.set(chatId, mentor);
 
         return mentor;
     }
@@ -311,20 +315,22 @@ export class PostgresStorage implements MentorStorage {
         const newRequest = new MentorClientRequest(new PgRowAdapter(result.rows[0]));
 
         // Update cache
-        let cachedRequests = this._activeRequestsCache.get(request.mentorId) as Map<string, MentorClientRequest>;
-        if (cachedRequests) {
-            cachedRequests.set(newRequest.id, newRequest);
-            this._activeRequestsCache.set(request.mentorId, cachedRequests);
-        }
+        if (this.cacheEnabled) {
+            let cachedRequests = this._activeRequestsCache.get(request.mentorId) as Map<string, MentorClientRequest>;
+            if (cachedRequests) {
+                cachedRequests.set(newRequest.id, newRequest);
+                this._activeRequestsCache.set(request.mentorId, cachedRequests);
+            }
 
-        // Handle cache swap when request is done/declined/unavailable
-        if (newRequest.status === MentorClientRequestStatus.done
-            || newRequest.status === MentorClientRequestStatus.declined
-            || newRequest.status === MentorClientRequestStatus.unavailable) {
-            this.swapRequestInCache(newRequest, this._activeRequestsCache, this._archivedRequestsCache);
-        }
-        if (request.status === MentorClientRequestStatus.unavailable && newRequest.status === MentorClientRequestStatus.contacted) {
-            this.swapRequestInCache(newRequest, this._archivedRequestsCache, this._activeRequestsCache);
+            // Handle cache swap when request is done/declined/unavailable
+            if (newRequest.status === MentorClientRequestStatus.done
+                || newRequest.status === MentorClientRequestStatus.declined
+                || newRequest.status === MentorClientRequestStatus.unavailable) {
+                this.swapRequestInCache(newRequest, this._activeRequestsCache, this._archivedRequestsCache);
+            }
+            if (request.status === MentorClientRequestStatus.unavailable && newRequest.status === MentorClientRequestStatus.contacted) {
+                this.swapRequestInCache(newRequest, this._archivedRequestsCache, this._activeRequestsCache);
+            }
         }
 
         return newRequest;
