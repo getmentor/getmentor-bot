@@ -2,6 +2,7 @@ import {html as format} from 'telegram-format';
 import { Mentor, MentorPrice } from '../../lib/models/Mentor';
 import { MentorClientRequest } from '../../lib/models/MentorClientRequest';
 import { MentorUtils } from '../../lib/utils/MentorUtils';
+import { stringsCommon } from './common';
 
 export const stringsSingleRequest = {
     requestDetails: (request: MentorClientRequest) => {
@@ -13,7 +14,9 @@ ${format.bold('Статус:')} ${MentorUtils.formatRequestStatus(request.status
 ${format.bold('Уровень: ') + (request.level ? request.level : 'Не указал')}
 
 ${format.bold('Запрос:')}
-${format.monospace(format.escape(request.details.substring(0, 3500)))}`
+${format.monospace(format.escape(request.details.substring(0, 3500)))}
+
+Ссылка на заявку: ${stringsCommon.baseUrl}/mentor/requests/${request.id}`
     },
 
     buttonContacted: '💬 Связался с менти',

@@ -62,7 +62,7 @@ export function singleRequestSubmenu(): MenuTemplate<MentorContext> {
     );
 
     // Unavailable mentee
-    singleRequestSubmenu.interact(stringsSingleRequest.buttonUnavailable, 'unavailable', {
+    singleRequestSubmenu.interact(stringsSingleRequest.buttonUnavailable, 'unavail', {
         do: async ctx => {
             await setNewStatus(ctx, MentorClientRequestStatus.unavailable);
             return true;
@@ -70,7 +70,7 @@ export function singleRequestSubmenu(): MenuTemplate<MentorContext> {
         hide: ctx => isHidden(ctx)
     });
 
-    singleRequestSubmenu.interact(stringsSingleRequest.buttonAvailable, 'available', {
+    singleRequestSubmenu.interact(stringsSingleRequest.buttonAvailable, 'avail', {
         do: async ctx => {
             const id = ctx.match![1]!;
             let request = ctx.mentor.archivedRequests?.get(id);
