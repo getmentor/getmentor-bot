@@ -56,4 +56,4 @@ jobs:
       with:
         environment: production
         sourcemaps: ./dist
-        version: "v0.2.0"
+        version: "v2.0.0"
