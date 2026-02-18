@@ -8,9 +8,11 @@ export function makeRequestsMenu(): MenuTemplate<MentorContext> {
 
     // Active requests
     const activeRequestsMenu = new MenuTemplate<MentorContext>('Ваши текущие заявки')
-    activeRequestsMenu.chooseIntoSubmenu('request', 
+    activeRequestsMenu.chooseIntoSubmenu('request',
         (ctx) => {
-            return Array.from(ctx.mentor.requests.keys())
+            return Array.from(ctx.mentor.requests.entries())
+                .sort((a, b) => b[1].createdAt.getTime() - a[1].createdAt.getTime())
+                .map(([key]) => key)
         },
         singleRequestSubmenu(),
         {
@@ -33,10 +35,12 @@ export function makeRequestsMenu(): MenuTemplate<MentorContext> {
 
     // Past requests
     const archivedRequestsMenu = new MenuTemplate<MentorContext>('Прошедшие заявки')
-    archivedRequestsMenu.chooseIntoSubmenu('request', 
+    archivedRequestsMenu.chooseIntoSubmenu('request',
         async (ctx) => {
             ctx.mentor.archivedRequests = await ctx.storage.getMentorArchivedRequests(ctx.mentor);
-            return Array.from(ctx.mentor.archivedRequests.keys())
+            return Array.from(ctx.mentor.archivedRequests.entries())
+                .sort((a, b) => b[1].createdAt.getTime() - a[1].createdAt.getTime())
+                .map(([key]) => key)
         },
         singleRequestSubmenu(),
         {
