@@ -16,12 +16,6 @@ export function makeEditProfileMenu(): MenuTemplate<MentorContext> {
     })
 
     profileMenu.url('🔗 Редактировать профиль онлайн', (ctx) => {
-        return `${stringsCommon.baseUrl}/profile?id=${ctx.mentor.internalId}&token=${ctx.mentor.authToken}`
-    }, {
-        hide: (ctx) => process.env.SHOW_EDIT_PROFILE_ONLINE ? false : true
-    });
-
-    profileMenu.url('🔗 Редактировать профиль онлайн', (ctx) => {
         return `${stringsCommon.baseUrl}/mentor/profile/edit`
     }, {
         hide: (ctx) => process.env.ENABLE_MENTOR_ADMIN_SECTION ? false : true

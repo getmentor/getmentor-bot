@@ -8,18 +8,18 @@ import { onStart } from "./commands/start";
 import { commonMiddleware } from "./bot/commonMiddleware";
 import { onCode } from "./commands/code";
 import { blockAnonymousMiddleware } from "./bot/blockAnonymousMiddleware";
-import { AirtableBase } from "../lib/storage/airtable/AirtableBase";
+import { PostgresStorage } from "../lib/storage/postgres/PostgresStorage";
 import { menuMiddleware } from "./bot/general";
 import { mixpanel } from "./utils/mixpanel";
 
-const { TELEGRAM_BOT_TOKEN, WEBHOOK_ADDRESS } = process.env;
-const airtable = new AirtableBase(process.env["AIRTABLE_API_KEY"], process.env['AIRTABLE_BASE_ID']);
+const { TELEGRAM_BOT_TOKEN, WEBHOOK_ADDRESS, DATABASE_URL } = process.env;
+const storage = new PostgresStorage(DATABASE_URL);
 
 const bot = new Telegraf<MentorContext>(TELEGRAM_BOT_TOKEN, {telegram: { webhookReply: true }});
 bot.telegram.setWebhook(WEBHOOK_ADDRESS);
 
 bot.use(session())
-bot.use( (ctx, next) => commonMiddleware(airtable, ctx, next));
+bot.use( (ctx, next) => commonMiddleware(storage, ctx, next));
 
 bot.command('start', ctx => onStart(ctx))
 bot.hears(/^[0-9a-zA-Z]{8}$/i, ctx => onCode(ctx, ctx.message.text));
