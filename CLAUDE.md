@@ -47,12 +47,13 @@ The custom `MentorContext` extends Telegraf's context with:
 **PostgresStorage** (`lib/storage/postgres/PostgresStorage.ts`):
 - Manages PostgreSQL database interactions via pg connection pool
 - Implements three-tier caching with `node-cache`:
-  - Mentors: 10 min TTL
-  - Active requests: 10 min TTL
-  - Archived requests: 100 min TTL
+  - Mentors: 60s TTL
+  - Active requests: 60s TTL
+  - Archived requests: 600s TTL
+- Cache can be fully disabled via `DISABLE_MENTORS_CACHE=true` env var (always fetches fresh from DB)
 - Handles cache invalidation on status changes
 - Swaps requests between active/archived caches based on status
-- Uses `pgRowAdapter` to convert PostgreSQL rows to application record format
+- Uses `PgRowAdapter` to convert PostgreSQL rows to application record format
 
 ### Data Models
 **Mentor** (`lib/models/Mentor.ts`):
@@ -80,6 +81,10 @@ The menu hierarchy is defined in `getmentor-bot/commands/`:
 
 Menu interactions use `telegraf-inline-menu` library for keyboard-based UIs. The `menuMiddleware` handles all menu routing under the `/` path.
 
+**⚠️ Telegram callback data limit**: Inline keyboard callbacks are limited to **64 bytes**. Action IDs in `telegraf-inline-menu` are concatenated with the full menu path (which includes UUIDs), so keep action IDs as short as possible — e.g., `'avail'` not `'available'`. Exceeding the limit causes the button to silently do nothing.
+
+Request lists (active and archived) are sorted **descending by `createdAt`** at the application level in `requests.ts`, since Map insertion order cannot be relied upon after cache mutations.
+
 ### Monitoring & Analytics
 - **Sentry** - Error tracking (configured in `lib/utils/sentry.ts`)
 - **Application Insights** - Azure monitoring (configured in `lib/utils/appInsights.ts`)
@@ -98,6 +103,8 @@ Required in `local.settings.json` for local development:
 - `WEBHOOK_ADDRESS` - Webhook URL for Telegram
 - `DATABASE_URL` - PostgreSQL connection string
 - `TG_MENTORS_CHAT_LINK` - Link to private mentors chat
+- `DISABLE_MENTORS_CACHE` - Set to any truthy value to bypass all in-memory caches (useful for debugging stale data)
+- `AZURE_STORAGE_DOMAIN` - Domain for mentor profile image URLs
 
 ## Important Notes
 
