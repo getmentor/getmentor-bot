@@ -166,7 +166,7 @@ function isHidden(ctx: MentorContext): boolean {
 function confirmDeclineRequestMenu(): MenuTemplate<MentorContext> {
     const confirmDeclineMenu = new MenuTemplate<MentorContext>('Вы уверены?');
 
-    confirmDeclineMenu.interact(stringsSingleRequest.buttonDeclineConfirm, 'yes', {
+    confirmDeclineMenu.interact(stringsSingleRequest.buttonDeclineConfirm, 'y', {
         do: async ctx => {
             await setNewStatus(ctx, MentorClientRequestStatus.declined);
             return true;
