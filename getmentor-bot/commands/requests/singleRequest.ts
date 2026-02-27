@@ -7,7 +7,7 @@ import { MentorUtils } from "../../../lib/utils/MentorUtils";
 import { EmailSender } from "../../email/EmailSender"
 import { SessionCompleteMessage } from "../../sendgrid/messages/SessionCompleteMessage";
 import { SessionDeclinedMessage } from "../../sendgrid/messages/SessionDeclinedMessage";
-import { mixpanel } from "../../utils/mixpanel";
+import { botAnalytics } from "../../utils/mixpanel";
 import { stringsCommon } from "../../strings/common";
 
 const fetch = require('node-fetch');
@@ -83,14 +83,13 @@ export function singleRequestSubmenu(): MenuTemplate<MentorContext> {
                 await ctx.answerCbQuery('Статус обновлен, спасибо!');
                 menuMiddleware.replyToContext(ctx, '/r/');
 
-                mixpanel.track('request_status_change_available', {
-                    distinct_id: ctx.chat.id,
-                    mentor_id: ctx.mentor.id,
-                    mentor_name: ctx.mentor.name,
-                    request_id: newRequest.id,
-                    request_name: newRequest.name,
-                    status: 'available'
-                })
+                botAnalytics.trackRequestStatusUpdated(
+                    ctx.chat.id,
+                    ctx.mentor.id,
+                    newRequest.id,
+                    "available",
+                    "success"
+                );
             }
             return true;
         },
@@ -145,15 +144,21 @@ async function setNewStatus(ctx: MentorContext, newStatus: MentorClientRequestSt
         await ctx.answerCbQuery('Статус обновлен, спасибо!');
         menuMiddleware.replyToContext(ctx, '/r/');
 
-        mixpanel.track('request_status_change_' + newRequest.status.toString(), {
-            distinct_id: ctx.chat.id,
-            mentor_id: ctx.mentor.id,
-            mentor_name: ctx.mentor.name,
-            request_id: newRequest.id,
-            request_name: newRequest.name,
-            status: newRequest.status.toString()
-        })
+        botAnalytics.trackRequestStatusUpdated(
+            ctx.chat.id,
+            ctx.mentor.id,
+            newRequest.id,
+            newRequest.status.toString(),
+            "success"
+        );
     } else {
+        botAnalytics.trackRequestStatusUpdated(
+            ctx.chat.id,
+            ctx.mentor.id,
+            request?.id || "unknown",
+            newStatus.toString(),
+            "failed"
+        );
         await ctx.answerCbQuery('Что-то пошло не так! Попробуйте позже.')
     }
 }
@@ -183,13 +188,9 @@ function reviewSubmenu(): MenuTemplate<MentorContext> {
         const id = ctx.match![1]!;
         let request = ctx.mentor.archivedRequests?.get(id);
 
-        mixpanel.track('request_view_review', {
-            distinct_id: ctx.chat.id,
-            mentor_id: ctx.mentor.id,
-            mentor_name: ctx.mentor.name,
-            request_id: request.id,
-            request_name: request.name
-        })
+        if (request) {
+            botAnalytics.trackRequestReviewViewed(ctx.chat.id, ctx.mentor.id, request.id);
+        }
 
         if (request && request.review) {
             return `${request.name} оставил следующий отзыв о вашей встрече:
