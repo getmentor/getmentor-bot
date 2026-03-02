@@ -1,11 +1,18 @@
 const Mixpanel = require("mixpanel");
 
 type AnalyticsProperties = Record<string, unknown>;
+type QueuedEvent = {
+    eventName: string;
+    payload: AnalyticsProperties;
+};
 
 const MIXPANEL_TOKEN = process.env.MIXPANEL_TOKEN;
 const EVENT_VERSION = process.env.MIXPANEL_EVENT_VERSION || "v1";
+const MAX_QUEUE_SIZE = Number(process.env.MIXPANEL_QUEUE_SIZE || 200);
 const SOURCE_SYSTEM = "bot";
 const ENVIRONMENT = process.env.APP_ENV || process.env.NODE_ENV || "unknown";
+const trackQueue: QueuedEvent[] = [];
+let isFlushingQueue = false;
 
 const blockedPropertyFragments = [
     "email",
@@ -77,16 +84,58 @@ function trackEvent(
         return;
     }
 
-    try {
-        mixpanelClient.track(eventName, {
+    enqueueEvent({
+        eventName: eventName,
+        payload: {
             ...sanitizeProperties(properties),
             distinct_id: distinctId(mentorId, chatId),
             source_system: SOURCE_SYSTEM,
             environment: ENVIRONMENT,
             event_version: EVENT_VERSION,
+        },
+    });
+}
+
+function enqueueEvent(event: QueuedEvent): void {
+    if (trackQueue.length >= MAX_QUEUE_SIZE) {
+        trackQueue.shift();
+        console.warn("[Bot Analytics] Queue is full, dropping oldest event");
+    }
+    trackQueue.push(event);
+    scheduleFlush();
+}
+
+function scheduleFlush(): void {
+    if (isFlushingQueue) {
+        return;
+    }
+    isFlushingQueue = true;
+    setImmediate(flushQueue);
+}
+
+function flushQueue(): void {
+    if (!mixpanelClient) {
+        trackQueue.length = 0;
+        isFlushingQueue = false;
+        return;
+    }
+
+    const nextEvent = trackQueue.shift();
+    if (!nextEvent) {
+        isFlushingQueue = false;
+        return;
+    }
+
+    try {
+        mixpanelClient.track(nextEvent.eventName, nextEvent.payload, (error: unknown) => {
+            if (error) {
+                console.warn("[Bot Analytics] Mixpanel track failed", nextEvent.eventName, error);
+            }
+            flushQueue();
         });
     } catch (error) {
-        console.warn("[Bot Analytics] Mixpanel track failed", eventName, error);
+        console.warn("[Bot Analytics] Mixpanel track failed", nextEvent.eventName, error);
+        flushQueue();
     }
 }
 
