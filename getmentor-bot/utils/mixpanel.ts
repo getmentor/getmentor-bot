@@ -14,14 +14,24 @@ const ENVIRONMENT = process.env.APP_ENV || process.env.NODE_ENV || "unknown";
 const trackQueue: QueuedEvent[] = [];
 let isFlushingQueue = false;
 
-const blockedPropertyFragments = [
+const blockedPropertyKeys = new Set([
     "email",
+    "mentoremail",
+    "moderatoremail",
     "name",
+    "mentorname",
+    "moderatorname",
     "telegram",
-    "code",
+    "telegramusername",
     "description",
     "review",
-];
+    "mentorreview",
+    "platformreview",
+    "improvements",
+    "secretcode",
+    "authcode",
+    "loginurl",
+]);
 
 const mixpanelClient = MIXPANEL_TOKEN
     ? Mixpanel.init(MIXPANEL_TOKEN, { protocol: "https" })
@@ -44,7 +54,7 @@ function normalizePropertyKey(key: string): string {
 
 function isBlockedProperty(key: string): boolean {
     const normalized = normalizePropertyKey(key);
-    return blockedPropertyFragments.some((fragment) => normalized.includes(fragment));
+    return blockedPropertyKeys.has(normalized);
 }
 
 function sanitizeProperties(properties: AnalyticsProperties = {}): AnalyticsProperties {
