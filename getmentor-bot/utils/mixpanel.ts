@@ -1,4 +1,6 @@
 const Mixpanel = require("mixpanel");
+const https = require("https");
+const URLParser = require("url").URL;
 
 type AnalyticsProperties = Record<string, unknown>;
 type QueuedEvent = {
@@ -6,11 +8,25 @@ type QueuedEvent = {
     payload: AnalyticsProperties;
 };
 
-const MIXPANEL_TOKEN = process.env.MIXPANEL_TOKEN;
-const EVENT_VERSION = process.env.MIXPANEL_EVENT_VERSION || "v1";
-const MAX_QUEUE_SIZE = Number(process.env.MIXPANEL_QUEUE_SIZE || 200);
+type AnalyticsProvider = "none" | "mixpanel" | "posthog" | "dual";
+
 const SOURCE_SYSTEM = "bot";
 const ENVIRONMENT = process.env.APP_ENV || process.env.NODE_ENV || "unknown";
+const EVENT_VERSION = process.env.ANALYTICS_EVENT_VERSION || process.env.MIXPANEL_EVENT_VERSION || "v1";
+const MAX_QUEUE_SIZE = Number(process.env.ANALYTICS_QUEUE_SIZE || process.env.MIXPANEL_QUEUE_SIZE || process.env.POSTHOG_QUEUE_SIZE || 200);
+const REQUEST_TIMEOUT_MS = Number(process.env.ANALYTICS_REQUEST_TIMEOUT_MS || process.env.POSTHOG_REQUEST_TIMEOUT_MS || 3000);
+
+const MIXPANEL_TOKEN = (process.env.MIXPANEL_TOKEN || "").trim();
+
+const POSTHOG_API_KEY = (process.env.POSTHOG_API_KEY || "").trim();
+const POSTHOG_CAPTURE_ENDPOINT = buildPostHogCaptureEndpoint(
+    process.env.POSTHOG_HOST || "https://us.i.posthog.com",
+    process.env.POSTHOG_CAPTURE_ENDPOINT || ""
+);
+const POSTHOG_DISABLE_GEOIP = (process.env.POSTHOG_DISABLE_GEOIP || "true").toLowerCase() !== "false";
+
+const ANALYTICS_PROVIDER = (process.env.ANALYTICS_PROVIDER || "").trim().toLowerCase();
+
 const trackQueue: QueuedEvent[] = [];
 let isFlushingQueue = false;
 
@@ -36,6 +52,29 @@ const blockedPropertyKeys = new Set([
 const mixpanelClient = MIXPANEL_TOKEN
     ? Mixpanel.init(MIXPANEL_TOKEN, { protocol: "https" })
     : null;
+
+function resolveProvider(): AnalyticsProvider {
+    const explicit = ANALYTICS_PROVIDER;
+    const hasMixpanel = mixpanelClient !== null;
+    const hasPostHog = POSTHOG_API_KEY !== "" && POSTHOG_CAPTURE_ENDPOINT !== "";
+
+    if (explicit === "none") return "none";
+    if (explicit === "mixpanel") return hasMixpanel ? "mixpanel" : "none";
+    if (explicit === "posthog") return hasPostHog ? "posthog" : "none";
+    if (explicit === "dual") {
+        if (hasMixpanel && hasPostHog) return "dual";
+        if (hasMixpanel) return "mixpanel";
+        if (hasPostHog) return "posthog";
+        return "none";
+    }
+
+    if (hasMixpanel && hasPostHog) return "dual";
+    if (hasMixpanel) return "mixpanel";
+    if (hasPostHog) return "posthog";
+    return "none";
+}
+
+const provider = resolveProvider();
 
 export const analyticsEvents = {
     BOT_MENU_OPENED: "bot_menu_opened",
@@ -90,7 +129,7 @@ function trackEvent(
     chatId: string | number,
     properties: AnalyticsProperties = {}
 ): void {
-    if (!mixpanelClient || !eventName) {
+    if (provider === "none" || !eventName) {
         return;
     }
 
@@ -120,33 +159,145 @@ function scheduleFlush(): void {
         return;
     }
     isFlushingQueue = true;
-    setImmediate(flushQueue);
+    setImmediate(() => {
+        void flushQueue();
+    });
 }
 
-function flushQueue(): void {
-    if (!mixpanelClient) {
-        trackQueue.length = 0;
-        isFlushingQueue = false;
-        return;
-    }
-
-    const nextEvent = trackQueue.shift();
-    if (!nextEvent) {
-        isFlushingQueue = false;
-        return;
-    }
-
+async function flushQueue(): Promise<void> {
     try {
-        mixpanelClient.track(nextEvent.eventName, nextEvent.payload, (error: unknown) => {
-            if (error) {
-                console.warn("[Bot Analytics] Mixpanel track failed", nextEvent.eventName, error);
+        while (trackQueue.length > 0) {
+            const nextEvent = trackQueue.shift();
+            if (!nextEvent) {
+                break;
             }
-            flushQueue();
-        });
-    } catch (error) {
-        console.warn("[Bot Analytics] Mixpanel track failed", nextEvent.eventName, error);
-        flushQueue();
+
+            await sendEvent(nextEvent);
+        }
+    } finally {
+        isFlushingQueue = false;
+        if (trackQueue.length > 0) {
+            scheduleFlush();
+        }
     }
+}
+
+async function sendEvent(event: QueuedEvent): Promise<void> {
+    if (provider === "mixpanel") {
+        await sendMixpanelEvent(event);
+        return;
+    }
+
+    if (provider === "posthog") {
+        await sendPostHogEvent(event);
+        return;
+    }
+
+    if (provider === "dual") {
+        await Promise.allSettled([
+            sendMixpanelEvent(event),
+            sendPostHogEvent(event),
+        ]);
+    }
+}
+
+function sendMixpanelEvent(event: QueuedEvent): Promise<void> {
+    if (!mixpanelClient) {
+        return Promise.resolve();
+    }
+
+    return new Promise((resolve) => {
+        try {
+            mixpanelClient.track(event.eventName, event.payload, (error: unknown) => {
+                if (error) {
+                    console.warn("[Bot Analytics] Mixpanel track failed", event.eventName, error);
+                }
+                resolve();
+            });
+        } catch (error) {
+            console.warn("[Bot Analytics] Mixpanel track failed", event.eventName, error);
+            resolve();
+        }
+    });
+}
+
+function sendPostHogEvent(event: QueuedEvent): Promise<void> {
+    if (!POSTHOG_API_KEY || !POSTHOG_CAPTURE_ENDPOINT) {
+        return Promise.resolve();
+    }
+
+    const payload = {
+        api_key: POSTHOG_API_KEY,
+        event: event.eventName,
+        distinct_id: event.payload.distinct_id,
+        timestamp: new Date().toISOString(),
+        disable_geoip: POSTHOG_DISABLE_GEOIP,
+        properties: {
+            ...event.payload,
+        },
+    };
+
+    return postJSON(POSTHOG_CAPTURE_ENDPOINT, payload, event.eventName);
+}
+
+function postJSON(endpoint: string, payload: Record<string, unknown>, eventName: string): Promise<void> {
+    return new Promise((resolve) => {
+        try {
+            const url = new URLParser(endpoint);
+            const body = JSON.stringify(payload);
+            const request = https.request(
+                {
+                    protocol: url.protocol,
+                    hostname: url.hostname,
+                    port: url.port || undefined,
+                    path: `${url.pathname}${url.search}`,
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Content-Length": Buffer.byteLength(body),
+                        "Accept": "application/json",
+                    },
+                    timeout: REQUEST_TIMEOUT_MS,
+                },
+                (response: any) => {
+                    if (response.statusCode && response.statusCode >= 300) {
+                        console.warn("[PostHog] Non-success response", response.statusCode, eventName);
+                    }
+                    response.resume();
+                    resolve();
+                }
+            );
+
+            request.on("timeout", () => {
+                request.destroy(new Error("request timeout"));
+            });
+
+            request.on("error", (error: unknown) => {
+                console.warn("[PostHog] Failed to send event", eventName, error);
+                resolve();
+            });
+
+            request.write(body);
+            request.end();
+        } catch (error) {
+            console.warn("[PostHog] Failed to send event", eventName, error);
+            resolve();
+        }
+    });
+}
+
+function buildPostHogCaptureEndpoint(host: string, endpoint: string): string {
+    const override = (endpoint || "").trim();
+    if (override) {
+        return override;
+    }
+
+    const normalizedHost = (host || "").trim();
+    if (!normalizedHost) {
+        return "";
+    }
+
+    return `${normalizedHost.replace(/\/+$/, "")}/capture/`;
 }
 
 export const botAnalytics = {
