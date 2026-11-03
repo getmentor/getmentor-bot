@@ -122,9 +122,12 @@ Status changes automatically move requests between caches:
 
 The `setRequestStatus` method in `PostgresStorage` handles cache swapping and updates the `last_status_change` timestamp in the database.
 
+### Soft-Deleted Mentors
+Mentors with `deleted_at` set are deleted (soft delete from the website or admin). Mentor lookups (`getMentorByTelegramId`, `getMentorBySecretCode`) and mentor updates filter `deleted_at IS NULL`, so a deleted mentor is treated as anonymous and can't log in with their code. With the cache on, an already-cached mentor can keep using the bot for up to 60s after the delete.
+
 ### PostgreSQL Schema
 The bot expects these PostgreSQL tables:
-- **mentors** table with columns: id (UUID), name, email, job_title, workplace, details, slug, legacy_id, tg_secret, telegram, telegram_chat_id, price, status, image, experience, calendar_url, auth_token, sort_order, created_at, updated_at
+- **mentors** table with columns: id (UUID), name, email, job_title, workplace, details, slug, legacy_id, tg_secret, telegram, telegram_chat_id, price, status, image, experience, calendar_url, auth_token, sort_order, created_at, updated_at, deleted_at
 - **client_requests** table with columns: id (UUID), mentor_id (UUID FK), name, email, telegram, description, level, review, status, created_at, modified_at, scheduled_at, last_status_change, review_form_url, decline_reason, decline_comment
 
 ### Localization
