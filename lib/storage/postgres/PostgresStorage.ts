@@ -161,7 +161,8 @@ export class PostgresStorage implements MentorStorage {
                           ''
                         ) AS tags_joined
                  FROM mentors m
-                 WHERE m.telegram_chat_id = $1`,
+                 WHERE m.telegram_chat_id = $1
+                   AND m.deleted_at IS NULL`,
                 [chatId]
             );
 
@@ -185,7 +186,8 @@ export class PostgresStorage implements MentorStorage {
                       ''
                     ) AS tags_joined
              FROM mentors m
-             WHERE m.tg_secret = $1`,
+             WHERE m.tg_secret = $1
+               AND m.deleted_at IS NULL`,
             [code]
         );
 
@@ -206,7 +208,7 @@ export class PostgresStorage implements MentorStorage {
         if (mentor.status === newStatus) return mentor;
 
         const result = await this.pool.query(
-            'UPDATE mentors SET status = $1 WHERE id = $2 RETURNING *',
+            'UPDATE mentors SET status = $1 WHERE id = $2 AND deleted_at IS NULL RETURNING *',
             [MentorStatus[newStatus], mentor.id]
         );
 
@@ -282,7 +284,7 @@ export class PostgresStorage implements MentorStorage {
 
     public async setMentorTelegramChatId(mentorId: string, chatId: number): Promise<Mentor> {
         const result = await this.pool.query(
-            'UPDATE mentors SET telegram_chat_id = $1 WHERE id = $2 RETURNING *',
+            'UPDATE mentors SET telegram_chat_id = $1 WHERE id = $2 AND deleted_at IS NULL RETURNING *',
             [chatId, mentorId]
         );
 
